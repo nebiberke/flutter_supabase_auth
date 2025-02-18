@@ -1,0 +1,105 @@
+{
+    "auth": {
+      "actions": {
+        "login": "Giriş Yap",
+        "register": "Kayıt Ol",
+        "logout": "Çıkış Yap"
+      },
+      "status": {
+        "logged_in": "Ana Sayfa",
+        "not_logged_in": "Giriş Yapılmadı"
+      },
+      "fields": {
+        "full_name": "Ad Soyad",
+        "email": "E-posta",
+        "password": "Şifre"
+      },
+      "validation": {
+        "email_required": "Email boş olamaz",
+        "email_invalid": "Geçerli bir email adresi giriniz",
+        "password_required": "Şifre boş olamaz",
+        "password_length": "Şifre en az 6 karakter olmalıdır",
+        "full_name_required": "Ad soyad boş olamaz",
+        "dropdown_required": "Bu alan boş bırakılamaz",
+        "full_name_format": "Ad ve soyad arasında boşluk olmalıdır",
+        "full_name_characters": "Ad soyad sadece harf ve boşluk içerebilir",
+        "password_min_length": "Şifre en az 8 karakter olmalıdır",
+        "password_uppercase": "Şifre en az bir büyük harf içermelidir",
+        "password_lowercase": "Şifre en az bir küçük harf içermelidir",
+        "password_number": "Şifre en az bir rakam içermelidir",
+        "password_special": "Şifre en az bir özel karakter içermelidir",
+        "password_confirm_required": "Şifre tekrarı boş olamaz",
+        "password_confirm_match": "Şifreler eşleşmiyor"
+      }
+    },
+    "language": {
+      "title": "Dil Seçimi",
+      "turkish": "Türkçe",
+      "english": "İngilizce"
+    },
+    "home": {
+      "welcome": "Hoş geldin, {}",
+      "tabs": {
+        "dashboard": "Ana Sayfa",
+        "profile": "Profil"
+      },
+      "dashboard": {
+        "title": "Hoş Geldiniz",
+        "description": "Bu uygulama, Clean Architecture prensiplerine uygun olarak geliştirilmiş bir örnek uygulamadır."
+      },
+      "profile": {
+        "title": "Profil Bilgileri",
+        "full_name": "Ad Soyad: {}",
+        "email": "E-posta: {}",
+        "created_at": "Kayıt Tarihi: {}",
+        "created_at_title": "Kayıt Tarihi",
+        "save": "Kaydet",
+        "choose_photo": "Fotoğraf Seç",
+        "camera": "Kamera",
+        "gallery": "Galeri",
+        "updated": "Profil başarıyla güncellendi."
+      }
+    },
+    "common": {
+      "retry": "Tekrar Dene"
+    },
+    "errors": {
+      "titles": {
+        "no_internet": "Bağlantı Hatası",
+        "database_error": "Veritabanı Hatası",
+        "empty_response": "Boş Yanıt",
+        "unknown_error": "Bilinmeyen Hata",
+        "authentication_error": "Kimlik Doğrulama Hatası"
+      },
+      "messages": {
+        "auth_error": "Kimlik doğrulama hatası oluştu.",
+        "network_error": "Lütfen internet bağlantınızı kontrol edin.",
+        "unknown_error": "Beklenmeyen bir hata oluştu.",
+        "null_response_error": "Sunucudan boş bir yanıt alındı.",
+        "database_error": "Bir veritabanı hatası oluştu. Lütfen daha sonra tekrar deneyin.",
+        "no_internet_error": "İnternet bağlantısı yok. Lütfen bağlantınızı kontrol edin ve tekrar deneyin.",
+        "auth": {
+          "invalid_credentials": "Kimlik bilgileriniz geçersiz. Lütfen tekrar deneyin.",
+          "email_exists": "Bu e-posta adresi zaten kayıtlı.",
+          "email_not_confirmed": "E-posta adresiniz henüz doğrulanmadı.",
+          "user_already_exists": "Bu bilgilere sahip bir kullanıcı zaten mevcut.",
+          "user_not_found": "Kullanıcı bulunamadı.",
+          "weak_password": "Şifreniz çok zayıf. Lütfen daha güçlü bir şifre belirleyin.",
+          "signup_disabled": "Yeni kayıtlar şu anda devre dışı.",
+          "over_request_rate_limit": "Çok fazla istek gönderildi. Lütfen tekrar denemeden önce bekleyin.",
+          "over_email_send_rate_limit": "Bu e-posta adresine çok fazla mail gönderildi. Lütfen bir süre bekledikten sonra tekrar deneyin.",
+          "session_expired": "Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.",
+          "user_banned": "Hesabınız yasaklanmıştır. Lütfen destek ile iletişime geçin.",
+          "invalid_email": "Geçersiz e-posta adresi.",
+          "profile_photo": {
+            "upload_failed": "Profil fotoğrafı yüklenemedi.",
+            "update_failed": "Profil fotoğrafı güncellenemedi.",
+            "pick_failed": "Fotoğraf seçilirken bir hata oluştu.",
+            "file_too_large": "Fotoğraf boyutu çok büyük.",
+            "invalid_format": "Geçersiz dosya formatı."
+          }
+        }
+      }
+    }
+  }
+  

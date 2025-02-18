@@ -1,0 +1,105 @@
+{
+    "auth": {
+      "actions": {
+        "login": "Login",
+        "register": "Register",
+        "logout": "Logout"
+      },
+      "status": {
+        "logged_in": "Home",
+        "not_logged_in": "Not Logged In"
+      },
+      "fields": {
+        "full_name": "Full Name",
+        "email": "Email",
+        "password": "Password"
+      },
+      "validation": {
+        "email_required": "Email is required",
+        "email_invalid": "Please enter a valid email address",
+        "password_required": "Password is required",
+        "password_length": "Password must be at least 6 characters",
+        "full_name_required": "Full name is required",
+        "dropdown_required": "This field is required",
+        "full_name_format": "Please enter both first and last name",
+        "full_name_characters": "Full name can only contain letters and spaces",
+        "password_min_length": "Password must be at least 8 characters long",
+        "password_uppercase": "Password must contain at least one uppercase letter",
+        "password_lowercase": "Password must contain at least one lowercase letter",
+        "password_number": "Password must contain at least one number",
+        "password_special": "Password must contain at least one special character",
+        "password_confirm_required": "Confirmation password is required",
+        "password_confirm_match": "Passwords do not match"
+      }
+    },
+    "language": {
+      "title": "Select Language",
+      "turkish": "Turkish",
+      "english": "English"
+    },
+    "home": {
+      "welcome": "Welcome, {}",
+      "tabs": {
+        "dashboard": "Home",
+        "profile": "Profile"
+      },
+      "dashboard": {
+        "title": "Welcome",
+        "description": "This is a sample application developed according to Clean Architecture principles."
+      },
+      "profile": {
+        "title": "Profile Information",
+        "full_name": "Full Name: {}",
+        "email": "Email: {}",
+        "created_at": "Registration Date: {}",
+        "created_at_title": "Registration Date",
+        "save": "Save",
+        "choose_photo": "Choose Photo",
+        "camera": "Camera",
+        "gallery": "Gallery",
+        "updated": "Profile updated successfully."
+      }
+    },
+    "common": {
+      "retry": "Retry"
+    },
+    "errors": {
+      "titles": {
+        "no_internet": "Connection Error",
+        "database_error": "Database Error",
+        "empty_response": "Empty Response",
+        "unknown_error": "Unknown Error",
+        "authentication_error": "Authentication Error"
+      },
+      "messages": {
+        "auth_error": "Authenticated Error occured.",
+        "network_error": "Please check your internet connection.",
+        "unknown_error": "An unexpected error occurred.",
+        "null_response_error": "Received a null response from the server.",
+        "database_error": "A database error occurred. Please try again later.",
+        "no_internet_error": "No internet connection. Please check your connection and try again.",
+        "auth": {
+          "invalid_credentials": "Your credentials are invalid. Please try again.",
+          "email_exists": "This email address is already registered.",
+          "email_not_confirmed": "Your email address has not been confirmed yet.",
+          "user_already_exists": "A user with these details already exists.",
+          "user_not_found": "User not found.",
+          "weak_password": "Your password is too weak. Please choose a stronger one.",
+          "signup_disabled": "New signups are currently disabled.",
+          "over_request_rate_limit": "Too many requests. Please wait a while before trying again.",
+          "over_email_send_rate_limit": "Too many emails have been sent. Please wait a while before trying again.",
+          "session_expired": "Your session has expired. Please log in again.",
+          "user_banned": "Your account is banned. Please contact support.",
+          "invalid_email": "Invalid email address.",
+          "profile_photo": {
+            "upload_failed": "Failed to upload profile photo.",
+            "update_failed": "Failed to update profile photo.",
+            "pick_failed": "Error picking photo.",
+            "file_too_large": "Photo size is too large.",
+            "invalid_format": "Invalid file format."
+          }
+        }
+      }
+    }
+  }
+  
