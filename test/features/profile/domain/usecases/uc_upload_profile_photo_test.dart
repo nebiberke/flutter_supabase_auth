@@ -6,84 +6,126 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mocktail/mocktail.dart';
 
+// Mock sınıfları
 class MockProfileRepository extends Mock implements ProfileRepository {}
 
 class MockXFile extends Mock implements XFile {}
 
+// Fake sınıfları
 class FakeXFile extends Fake implements XFile {}
 
 void main() {
+  late UCUploadProfilePhoto useCase;
+  late MockProfileRepository mockRepository;
+  late MockXFile mockImageFile;
+
   setUpAll(() {
     registerFallbackValue(FakeXFile());
   });
 
-  late UCUploadProfilePhoto usecase;
-  late MockProfileRepository mockRepository;
-  late MockXFile mockXFile;
-
   setUp(() {
     mockRepository = MockProfileRepository();
-    mockXFile = MockXFile();
-    usecase = UCUploadProfilePhoto(repository: mockRepository);
+    mockImageFile = MockXFile();
+    useCase = UCUploadProfilePhoto(repository: mockRepository);
   });
 
-  const tImageUrl = 'https://example.com/image.jpg';
-  late final tParams = UploadProfilePhotoParams(imageFile: mockXFile);
+  group('UCUploadProfilePhoto', () {
+    const tUserId = 'test-user-id';
+    const tImageUrl = 'https://example.com/uploaded-image.jpg';
 
-  test(
-    'should upload profile photo through the repository',
-    () async {
-      // arrange
-      when(() => mockRepository.uploadProfilePhoto(any<XFile>()))
-          .thenAnswer((_) async => const Right(tImageUrl));
+    test(
+      "repository'den başarılı sonuç alınca Right(String) döndürmeli",
+      () async {
+        // Arrange
+        final tParams = UploadProfilePhotoParams(
+          imageFile: mockImageFile,
+          userId: tUserId,
+        );
 
-      // act
-      final result = await usecase(tParams);
+        when(
+          () => mockRepository.uploadProfilePhoto(any(), any()),
+        ).thenAnswer((_) async => const Right(tImageUrl));
 
-      // assert
-      expect(result, equals(const Right<Failure, String>(tImageUrl)));
-      verify(() => mockRepository.uploadProfilePhoto(any<XFile>())).called(1);
-      verifyNoMoreInteractions(mockRepository);
-    },
-  );
+        // Act
+        final result = await useCase(tParams);
 
-  test(
-    'should return NoInternetFailure when there is no internet connection',
-    () async {
-      // arrange
-      when(() => mockRepository.uploadProfilePhoto(any<XFile>()))
-          .thenAnswer((_) async => const Left(NoInternetFailure()));
+        // Assert
+        expect(result, equals(const Right<Failure, String>(tImageUrl)));
+        verify(
+          () => mockRepository.uploadProfilePhoto(mockImageFile, tUserId),
+        ).called(1);
+        verifyNoMoreInteractions(mockRepository);
+      },
+    );
 
-      // act
-      final result = await usecase(tParams);
-
-      // assert
-      expect(
-        result,
-        equals(const Left<Failure, String>(NoInternetFailure())),
+    test('repository hata döndürünce Left(Failure) döndürmeli', () async {
+      // Arrange
+      final tParams = UploadProfilePhotoParams(
+        imageFile: mockImageFile,
+        userId: tUserId,
       );
-      verify(() => mockRepository.uploadProfilePhoto(any<XFile>())).called(1);
+
+      const tFailure = DatabaseFailure();
+      when(
+        () => mockRepository.uploadProfilePhoto(any(), any()),
+      ).thenAnswer((_) async => const Left(tFailure));
+
+      // Act
+      final result = await useCase(tParams);
+
+      // Assert
+      expect(result, equals(const Left<DatabaseFailure, String>(tFailure)));
+      verify(
+        () => mockRepository.uploadProfilePhoto(mockImageFile, tUserId),
+      ).called(1);
       verifyNoMoreInteractions(mockRepository);
-    },
-  );
+    });
 
-  test(
-    'should return DatabaseFailure when storage operation fails',
-    () async {
-      // arrange
-      when(() => mockRepository.uploadProfilePhoto(any<XFile>()))
-          .thenAnswer((_) async => const Left(DatabaseFailure()));
-
-      // act
-      final result = await usecase(tParams);
-
-      // assert
-      expect(
-        result,
-        equals(const Left<Failure, String>(DatabaseFailure())),
+    test("doğru parametrelerle repository'yi çağırmalı", () async {
+      // Arrange
+      final tParams = UploadProfilePhotoParams(
+        imageFile: mockImageFile,
+        userId: tUserId,
       );
-      verify(() => mockRepository.uploadProfilePhoto(any<XFile>())).called(1);
-      verifyNoMoreInteractions(mockRepository);
-    },
-  );
+
+      when(
+        () => mockRepository.uploadProfilePhoto(any(), any()),
+      ).thenAnswer((_) async => const Right(tImageUrl));
+
+      // Act
+      await useCase(tParams);
+
+      // Assert
+      verify(
+        () => mockRepository.uploadProfilePhoto(mockImageFile, tUserId),
+      ).called(1);
+    });
+
+    test(
+      'UploadProfilePhotoParams eşitlik karşılaştırmasını doğru yapmalı',
+      () {
+        // Arrange
+        final mockFile1 = MockXFile();
+        final mockFile2 = MockXFile();
+
+        final params1 = UploadProfilePhotoParams(
+          imageFile: mockFile1,
+          userId: 'user1',
+        );
+        final params2 = UploadProfilePhotoParams(
+          imageFile: mockFile1,
+          userId: 'user1',
+        );
+        final params3 = UploadProfilePhotoParams(
+          imageFile: mockFile2,
+          userId: 'user2',
+        );
+
+        // Assert
+        expect(params1, equals(params2));
+        expect(params1, isNot(equals(params3)));
+        expect(params1.props, equals([mockFile1, 'user1']));
+      },
+    );
+  });
 }

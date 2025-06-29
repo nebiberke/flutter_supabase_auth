@@ -1,9 +1,8 @@
-import 'dart:ui'; // Required for ImageFilter.blur
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_supabase_auth/app/constants/duration_constants.dart';
-import 'package:flutter_supabase_auth/app/constants/theme_constants.dart';
+import 'package:flutter_supabase_auth/app/constants/radius_constants.dart';
 import 'package:flutter_supabase_auth/core/extensions/context_extension.dart';
 import 'package:go_router/go_router.dart';
 
@@ -103,7 +102,7 @@ class CustomAlertDialog extends StatelessWidget {
       barrierDismissible: barrierDismissible,
       // We use transparent here so we can manage the background color/blur ourselves.
       barrierColor: Colors.transparent,
-      transitionDuration: DurationConstants.ms120(),
+      transitionDuration: Durations.short3,
       pageBuilder: (ctx, animation, secondaryAnimation) {
         return GestureDetector(
           // If [barrierDismissible] is true, tapping outside closes the dialog.
@@ -146,10 +145,7 @@ class CustomAlertDialog extends StatelessWidget {
       },
       transitionBuilder: (ctx, anim, secondaryAnim, child) {
         // Fade-in transition for the dialog.
-        return FadeTransition(
-          opacity: anim,
-          child: child,
-        );
+        return FadeTransition(opacity: anim, child: child);
       },
     );
   }
@@ -158,17 +154,14 @@ class CustomAlertDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       shape: RoundedRectangleBorder(
-        borderRadius: ThemeConstants.borderRadiusCircular12,
+        borderRadius: BorderRadiusConstants.allMedium(),
       ),
       contentPadding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 16.h),
       actionsAlignment: actionsAlignment,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (icon != null) ...[
-            icon!,
-            context.verticalSpacingLow,
-          ],
+          if (icon != null) ...[icon!, context.verticalSpacingLow],
           Text(
             title,
             style: context.textTheme.bodyLarge?.copyWith(

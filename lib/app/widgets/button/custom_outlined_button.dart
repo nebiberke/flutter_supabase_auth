@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_supabase_auth/app/constants/theme_constants.dart';
 import 'package:flutter_supabase_auth/core/extensions/context_extension.dart';
 
 class CustomOutlinedButton extends StatelessWidget {
@@ -25,9 +24,9 @@ class CustomOutlinedButton extends StatelessWidget {
           : Text(
               text,
               textAlign: textAlign,
-              style: context.textTheme.bodyLarge?.copyWith(
+              style: context.textTheme.labelLarge?.copyWith(
                 color: context.colorScheme.primary,
-                fontWeight: ThemeConstants.fontWeightBold,
+                fontWeight: FontWeight.bold,
               ),
             ),
     );

@@ -12,5 +12,5 @@ abstract class StreamUseCase<Type, Params> {
 
 class NoParams extends Equatable {
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }

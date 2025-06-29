@@ -12,6 +12,10 @@ final class ThemeState extends Equatable {
   /// The theme mode
   final ThemeMode themeMode;
 
+  ThemeState copyWith({ThemeMode? themeMode}) {
+    return ThemeState(themeMode: themeMode ?? this.themeMode);
+  }
+
   /// Takes a [ThemeState] object and returns a [Map]
   Map<String, dynamic> toMap() {
     return {'themeMode': themeMode.index};

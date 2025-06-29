@@ -1,31 +1,28 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_supabase_auth/app/errors/failure.dart';
 import 'package:flutter_supabase_auth/core/enums/auth_status.dart';
-import 'package:flutter_supabase_auth/features/auth/domain/entities/auth_entity.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthState extends Equatable {
-  AuthState({
-    this.status = AuthStatus.initial,
-    AuthEntity? auth,
-    this.failure,
-  }) : auth = auth ?? AuthEntity.empty();
+  const AuthState({this.status = AuthStatus.initial, this.failure, this.user});
+
+  factory AuthState.initial() => const AuthState();
+
+  factory AuthState.unauthenticated() =>
+      const AuthState(status: AuthStatus.unauthenticated);
 
   final AuthStatus status;
-  final AuthEntity? auth;
   final Failure? failure;
+  final User? user;
 
-  AuthState copyWith({
-    AuthStatus? status,
-    AuthEntity? auth,
-    Failure? failure,
-  }) {
+  AuthState copyWith({AuthStatus? status, Failure? failure, User? user}) {
     return AuthState(
       status: status ?? this.status,
-      auth: auth ?? this.auth,
       failure: failure ?? this.failure,
+      user: user ?? this.user,
     );
   }
 
   @override
-  List<Object?> get props => [status, auth, failure];
+  List<Object?> get props => [status, failure, user];
 }

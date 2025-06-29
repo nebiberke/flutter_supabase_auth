@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_supabase_auth/app/constants/status_color_constants.dart';
 import 'package:flutter_supabase_auth/app/errors/failure.dart';
 import 'package:flutter_supabase_auth/app/l10n/app_l10n.g.dart';
 import 'package:flutter_supabase_auth/app/widgets/alert_dialog/custom_alert_dialog.dart';
@@ -8,7 +9,7 @@ import 'package:flutter_supabase_auth/core/enums/snackbar_state.dart';
 import 'package:flutter_supabase_auth/core/utils/snackbar/snackbar_utils.dart';
 import 'package:go_router/go_router.dart';
 
-class CustomErrorWidget {
+final class CustomErrorWidget {
   /// Shows either a [SnackbarUtils.showSnackbar] if [failure] is [AuthFailure],
   /// or a [CustomAlertDialog] for all other failure types.
   ///
@@ -50,31 +51,50 @@ class CustomErrorWidget {
       _ => LocaleKeys.errors_messages_unknown_error.tr(),
     };
 
+    // 3) Handle the failure with the appropriate icon and title
     final (String dialogTitle, Widget dialogIcon) = switch (failure) {
       NoInternetFailure() => (
-          LocaleKeys.errors_titles_no_internet.tr(),
-          Icon(Icons.wifi_off, color: Colors.red, size: 48.sp)
+        LocaleKeys.errors_titles_no_internet.tr(),
+        Icon(
+          Icons.wifi_off,
+          color: StatusColorConstants.errorColor,
+          size: 48.sp,
         ),
+      ),
       DatabaseFailure() => (
-          LocaleKeys.errors_titles_database_error.tr(),
-          Icon(Icons.storage_rounded, color: Colors.orange, size: 48.sp)
+        LocaleKeys.errors_titles_database_error.tr(),
+        Icon(
+          Icons.storage_rounded,
+          color: StatusColorConstants.warningColor,
+          size: 48.sp,
         ),
+      ),
       NullResponseFailure() => (
-          LocaleKeys.errors_titles_empty_response.tr(),
-          Icon(Icons.cloud_off, color: Colors.blueGrey, size: 48.sp)
-        ),
+        LocaleKeys.errors_titles_empty_response.tr(),
+        Icon(Icons.cloud_off, color: Colors.blueGrey, size: 48.sp),
+      ),
       UnknownFailure() => (
-          LocaleKeys.errors_titles_unknown_error.tr(),
-          Icon(Icons.error_outline, color: Colors.redAccent, size: 48.sp)
+        LocaleKeys.errors_titles_unknown_error.tr(),
+        Icon(
+          Icons.error_outline,
+          color: StatusColorConstants.errorColor,
+          size: 48.sp,
         ),
+      ),
       _ => (
-          LocaleKeys.errors_titles_unknown_error.tr(),
-          Icon(Icons.error_outline, color: Colors.redAccent, size: 48.sp)
+        LocaleKeys.errors_titles_unknown_error.tr(),
+        Icon(
+          Icons.error_outline,
+          color: StatusColorConstants.errorColor,
+          size: 48.sp,
         ),
+      ),
     };
 
+    // 4) Set the primary button text
     final primaryButtonText = LocaleKeys.common_retry.tr();
 
+    // 5) Show the dialog
     return CustomAlertDialog.show<T>(
       context,
       barrierDismissible: barrierDismissible,

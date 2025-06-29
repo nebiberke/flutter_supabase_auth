@@ -7,7 +7,7 @@ import 'package:flutter_supabase_auth/features/profile/domain/repositories/profi
 
 class UCUpdateProfile implements UseCase<Unit, UpdateProfileParams> {
   UCUpdateProfile({required ProfileRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final ProfileRepository _repository;
 
@@ -18,9 +18,7 @@ class UCUpdateProfile implements UseCase<Unit, UpdateProfileParams> {
 }
 
 class UpdateProfileParams extends Equatable {
-  const UpdateProfileParams({
-    required this.profile,
-  });
+  const UpdateProfileParams({required this.profile});
   final ProfileEntity profile;
 
   @override

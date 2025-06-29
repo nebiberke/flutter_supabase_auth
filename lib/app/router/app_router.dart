@@ -4,21 +4,30 @@ import 'package:flutter_supabase_auth/core/enums/auth_status.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/views/auth_view.dart';
 import 'package:flutter_supabase_auth/features/home/presentation/views/home_view.dart';
+import 'package:flutter_supabase_auth/features/home/presentation/views/user_profile_view.dart';
 import 'package:flutter_supabase_auth/features/profile/presentation/views/profile_view.dart';
 import 'package:flutter_supabase_auth/locator.dart';
 import 'package:go_router/go_router.dart';
 
 /// The [AppRouter] class is responsible for configuring the GoRouter
 final class AppRouter {
-  /// The [GlobalKey] for the root navigator
-  static final _shellNavigatorHome =
-      GlobalKey<NavigatorState>(debugLabel: 'shellHome');
-  static final _shellNavigatorProfile =
-      GlobalKey<NavigatorState>(debugLabel: 'shellProfile');
+  /// The [GlobalKey] for the home navigator
+  static final _shellNavigatorHome = GlobalKey<NavigatorState>(
+    debugLabel: 'shellHome',
+  );
+
+  /// The [GlobalKey] for the profile navigator
+  static final _shellNavigatorProfile = GlobalKey<NavigatorState>(
+    debugLabel: 'shellProfile',
+  );
+
+  /// Route Names
+  static const String userProfile = 'UserProfile';
 
   /// The [AuthRefreshNotifier] instance
-  static final AuthRefreshNotifier _authRefreshNotifier =
-      AuthRefreshNotifier(Locator.authBloc.stream);
+  static final AuthRefreshNotifier _authRefreshNotifier = AuthRefreshNotifier(
+    Locator.authBloc.stream,
+  );
 
   /// The [GoRouter] instance
   static final router = GoRouter(
@@ -34,19 +43,30 @@ final class AppRouter {
             const AuthView(),
       ),
 
+      /// User Profile View
+      GoRoute(
+        path: '/user-profile/:id',
+        name: userProfile,
+        builder: (BuildContext context, GoRouterState state) {
+          final userId = state.pathParameters['id'] ?? '';
+          return UserProfileView(userId: userId);
+        },
+      ),
+
       /// Dashboard View
       StatefulShellRoute.indexedStack(
-        builder: (
-          BuildContext context,
-          GoRouterState state,
-          StatefulNavigationShell navigationShell,
-        ) {
-          // Return the widget that implements the custom shell (in this case
-          // using a BottomNavigationBar). The StatefulNavigationShell is passed
-          // to be able access the state of the shell and to navigate to other
-          // branches in a stateful way.
-          return ScaffoldWithNavBar(navigationShell: navigationShell);
-        },
+        builder:
+            (
+              BuildContext context,
+              GoRouterState state,
+              StatefulNavigationShell navigationShell,
+            ) {
+              // Return the widget that implements the custom shell (in this case
+              // using a BottomNavigationBar). The StatefulNavigationShell is passed
+              // to be able access the state of the shell and to navigate to other
+              // branches in a stateful way.
+              return ScaffoldWithNavBar(navigationShell: navigationShell);
+            },
         branches: [
           /// Home View
           StatefulShellBranch(

@@ -1,20 +1,21 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_supabase_auth/app/errors/failure.dart';
-import 'package:flutter_supabase_auth/features/auth/domain/entities/auth_entity.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract class AuthRepository {
-  Future<Either<Failure, AuthEntity>> signIn({
+  Future<Either<Failure, User>> signIn({
     required String email,
     required String password,
   });
 
-  Future<Either<Failure, AuthEntity>> signUp({
+  Future<Either<Failure, User>> signUp({
     required String email,
     required String password,
     required String fullName,
+    required String username,
   });
 
   Future<Either<Failure, Unit>> signOut();
 
-  Stream<Either<Failure, AuthEntity?>> get authStateChanges;
+  User? getCurrentUser();
 }

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_supabase_auth/app/l10n/app_l10n.g.dart';
 
@@ -42,14 +43,15 @@ final class NoInternetFailure extends Failure {
 /// The error message is localized and should be displayed using `.tr()`.
 final class AuthFailure extends Failure {
   /// Creates an [AuthFailure] with an optional message.
-  const AuthFailure([
-    String? message,
-  ]) : message = message ?? LocaleKeys.errors_messages_auth_error;
+  const AuthFailure([String? message])
+    : message = message ?? LocaleKeys.errors_messages_auth_error;
 
   /// Maps an error [code] to a user-friendly message.
   ///
   /// The returned message should be localized using `.tr()`.
-  factory AuthFailure.fromCode(String? code) {
+  factory AuthFailure.fromCode(String? code, {String? message}) {
+    final seconds =
+        RegExp(r'(\d+) seconds?\.').firstMatch(message ?? '')?.group(1) ?? '3';
     switch (code) {
       case 'invalid_credentials':
         return const AuthFailure(
@@ -89,6 +91,24 @@ final class AuthFailure extends Failure {
         );
       case 'user_banned':
         return const AuthFailure(LocaleKeys.errors_messages_auth_user_banned);
+      case 'otp_expired':
+        return const AuthFailure(LocaleKeys.errors_messages_auth_otp_expired);
+      case 'phone_exists':
+        return const AuthFailure(LocaleKeys.errors_messages_auth_phone_exists);
+      case 'phone_not_confirmed':
+        return const AuthFailure(
+          LocaleKeys.errors_messages_auth_phone_not_confirmed,
+        );
+      case 'over_sms_send_rate_limit':
+        return AuthFailure(
+          LocaleKeys.errors_messages_auth_over_sms_rate_limit.tr(
+            namedArgs: {'seconds': seconds},
+          ),
+        );
+      case 'google_sign_in_error':
+        return const AuthFailure(
+          LocaleKeys.errors_messages_auth_google_sign_in_error,
+        );
       default:
         return const AuthFailure(LocaleKeys.errors_messages_auth_error);
     }

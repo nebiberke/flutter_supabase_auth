@@ -69,8 +69,9 @@ final class CustomValidator {
     }
 
     // Special character check
-    if (!value
-        .contains(RegExp(r'''[!@#\$&₺€*~%^()+={}\[\]:;'"<>,.?\/\\|`_<>-]'''))) {
+    if (!value.contains(
+      RegExp(r'''[!@#\$&₺€*~%^()+={}\[\]:;'"<>,.?\/\\|`_<>-]'''),
+    )) {
       return 'auth.validation.password_special'.tr();
     }
 

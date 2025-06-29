@@ -1,337 +1,411 @@
 import 'package:dartz/dartz.dart';
+import 'package:flutter_supabase_auth/app/errors/exceptions.dart';
 import 'package:flutter_supabase_auth/app/errors/failure.dart';
 import 'package:flutter_supabase_auth/core/network/network_info.dart';
 import 'package:flutter_supabase_auth/features/auth/data/datasources/remote/auth_remote_data_source.dart';
-import 'package:flutter_supabase_auth/features/auth/data/models/auth_model.dart';
 import 'package:flutter_supabase_auth/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:flutter_supabase_auth/features/auth/domain/entities/auth_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+// Mock sınıfları
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
 
 class MockNetworkInfo extends Mock implements NetworkInfo {}
+
+class MockUser extends Mock implements User {}
 
 void main() {
   late AuthRepositoryImpl repository;
   late MockAuthRemoteDataSource mockRemoteDataSource;
   late MockNetworkInfo mockNetworkInfo;
+  late MockUser mockUser;
 
   setUp(() {
     mockRemoteDataSource = MockAuthRemoteDataSource();
     mockNetworkInfo = MockNetworkInfo();
+    mockUser = MockUser();
     repository = AuthRepositoryImpl(
       remoteDataSource: mockRemoteDataSource,
       networkInfo: mockNetworkInfo,
     );
   });
 
-  const tEmail = 'test@example.com';
-  const tPassword = 'password123';
-  const tFullName = 'Test User';
+  group('AuthRepositoryImpl', () {
+    const tEmail = 'test@example.com';
+    const tPassword = 'password123';
+    const tFullName = 'Test User';
+    const tUsername = 'testuser';
 
-  const tAuthModel = AuthModel(
-    userId: 'test_id',
-    accessToken: 'test_token',
-    providers: ['email'],
-  );
+    group('signIn', () {
+      test(
+        'internet bağlantısı varken başarılı signIn Right(User) döndürmeli',
+        () async {
+          // Arrange
+          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(
+            () => mockRemoteDataSource.signIn(
+              email: any(named: 'email'),
+              password: any(named: 'password'),
+            ),
+          ).thenAnswer((_) async => mockUser);
 
-  const tAuthEntity = AuthEntity(
-    userId: 'test_id',
-    accessToken: 'test_token',
-    isTokenExpired: false,
-    providers: ['email'],
-  );
-
-  group('signIn', () {
-    test(
-      'should return AuthEntity when the device is online and call is successful',
-      () async {
-        // arrange
-        when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
-        when(
-          () => mockRemoteDataSource.signIn(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-          ),
-        ).thenAnswer((_) async => tAuthModel);
-
-        // act
-        final result = await repository.signIn(
-          email: tEmail,
-          password: tPassword,
-        );
-
-        // assert
-        expect(result, equals(const Right<Failure, AuthEntity>(tAuthEntity)));
-        verify(() => mockNetworkInfo.isConnected);
-        verify(
-          () => mockRemoteDataSource.signIn(
+          // Act
+          final result = await repository.signIn(
             email: tEmail,
             password: tPassword,
-          ),
-        );
-        verifyNoMoreInteractions(mockNetworkInfo);
-        verifyNoMoreInteractions(mockRemoteDataSource);
-      },
-    );
+          );
 
-    test(
-      'should return NoInternetFailure when the device is offline',
-      () async {
-        // arrange
-        when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => false);
+          // Assert
+          expect(result, equals(Right<AuthFailure, User>(mockUser)));
+          verify(() => mockNetworkInfo.isConnected).called(1);
+          verify(
+            () =>
+                mockRemoteDataSource.signIn(email: tEmail, password: tPassword),
+          ).called(1);
+        },
+      );
 
-        // act
-        final result = await repository.signIn(
-          email: tEmail,
-          password: tPassword,
-        );
+      test(
+        'internet bağlantısı yokken Left(NoInternetFailure) döndürmeli',
+        () async {
+          // Arrange
+          when(
+            () => mockNetworkInfo.isConnected,
+          ).thenAnswer((_) async => false);
 
-        // assert
-        expect(
-          result,
-          equals(const Left<Failure, AuthEntity>(NoInternetFailure())),
-        );
-        verify(() => mockNetworkInfo.isConnected);
-        verifyNoMoreInteractions(mockNetworkInfo);
-        verifyZeroInteractions(mockRemoteDataSource);
-      },
-    );
-
-    test(
-      'should return AuthFailure when AuthException occurs',
-      () async {
-        // arrange
-        when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
-        when(
-          () => mockRemoteDataSource.signIn(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-          ),
-        ).thenThrow(const AuthException('Auth error'));
-
-        // act
-        final result = await repository.signIn(
-          email: tEmail,
-          password: tPassword,
-        );
-
-        // assert
-        expect(
-          result,
-          equals(const Left<Failure, AuthEntity>(AuthFailure())),
-        );
-        verify(() => mockNetworkInfo.isConnected);
-        verify(
-          () => mockRemoteDataSource.signIn(
+          // Act
+          final result = await repository.signIn(
             email: tEmail,
             password: tPassword,
-          ),
-        );
-        verifyNoMoreInteractions(mockNetworkInfo);
-        verifyNoMoreInteractions(mockRemoteDataSource);
-      },
-    );
-  });
+          );
 
-  group('signUp', () {
-    test(
-      'should return AuthEntity when the device is online and call is successful',
-      () async {
-        // arrange
-        when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
-        when(
-          () => mockRemoteDataSource.signUp(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-            fullName: any(named: 'fullName'),
-          ),
-        ).thenAnswer((_) async => tAuthModel);
+          // Assert
+          expect(
+            result,
+            equals(const Left<NoInternetFailure, User>(NoInternetFailure())),
+          );
+          verify(() => mockNetworkInfo.isConnected).called(1);
+          verifyNever(
+            () => mockRemoteDataSource.signIn(
+              email: any(named: 'email'),
+              password: any(named: 'password'),
+            ),
+          );
+        },
+      );
 
-        // act
-        final result = await repository.signUp(
-          email: tEmail,
-          password: tPassword,
-          fullName: tFullName,
-        );
+      test(
+        'AuthException yakalandığında Left(AuthFailure) döndürmeli',
+        () async {
+          // Arrange
+          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(
+            () => mockRemoteDataSource.signIn(
+              email: any(named: 'email'),
+              password: any(named: 'password'),
+            ),
+          ).thenThrow(
+            const AuthException(
+              'Invalid credentials',
+              code: 'invalid_credentials',
+            ),
+          );
 
-        // assert
-        expect(result, equals(const Right<Failure, AuthEntity>(tAuthEntity)));
-        verify(() => mockNetworkInfo.isConnected);
-        verify(
-          () => mockRemoteDataSource.signUp(
+          // Act
+          final result = await repository.signIn(
             email: tEmail,
             password: tPassword,
-            fullName: tFullName,
-          ),
-        );
-        verifyNoMoreInteractions(mockNetworkInfo);
-        verifyNoMoreInteractions(mockRemoteDataSource);
-      },
-    );
+          );
 
-    test(
-      'should return NoInternetFailure when the device is offline',
-      () async {
-        // arrange
-        when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => false);
+          // Assert
+          expect(result.isLeft(), isTrue);
+          result.fold(
+            (failure) => expect(failure, isA<AuthFailure>()),
+            (user) => fail('Expected failure'),
+          );
+        },
+      );
 
-        // act
-        final result = await repository.signUp(
-          email: tEmail,
-          password: tPassword,
-          fullName: tFullName,
-        );
+      test(
+        'NullResponseException yakalandığında Left(NullResponseFailure) döndürmeli',
+        () async {
+          // Arrange
+          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(
+            () => mockRemoteDataSource.signIn(
+              email: any(named: 'email'),
+              password: any(named: 'password'),
+            ),
+          ).thenThrow(NullResponseException());
 
-        // assert
-        expect(
-          result,
-          equals(const Left<Failure, AuthEntity>(NoInternetFailure())),
-        );
-        verify(() => mockNetworkInfo.isConnected);
-        verifyNoMoreInteractions(mockNetworkInfo);
-        verifyZeroInteractions(mockRemoteDataSource);
-      },
-    );
+          // Act
+          final result = await repository.signIn(
+            email: tEmail,
+            password: tPassword,
+          );
 
-    test(
-      'should return AuthFailure when AuthException occurs',
-      () async {
-        // arrange
-        when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
-        when(
-          () => mockRemoteDataSource.signUp(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-            fullName: any(named: 'fullName'),
-          ),
-        ).thenThrow(const AuthException('Auth error'));
+          // Assert
+          expect(
+            result,
+            equals(
+              const Left<NullResponseFailure, User>(NullResponseFailure()),
+            ),
+          );
+        },
+      );
 
-        // act
-        final result = await repository.signUp(
-          email: tEmail,
-          password: tPassword,
-          fullName: tFullName,
-        );
+      test(
+        'generic Exception yakalandığında Left(UnknownFailure) döndürmeli',
+        () async {
+          // Arrange
+          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(
+            () => mockRemoteDataSource.signIn(
+              email: any(named: 'email'),
+              password: any(named: 'password'),
+            ),
+          ).thenThrow(Exception('Network error'));
 
-        // assert
-        expect(
-          result,
-          equals(const Left<Failure, AuthEntity>(AuthFailure())),
-        );
-        verify(() => mockNetworkInfo.isConnected);
-        verify(
-          () => mockRemoteDataSource.signUp(
+          // Act
+          final result = await repository.signIn(
+            email: tEmail,
+            password: tPassword,
+          );
+
+          // Assert
+          expect(
+            result,
+            equals(const Left<UnknownFailure, User>(UnknownFailure())),
+          );
+        },
+      );
+    });
+
+    group('signUp', () {
+      test(
+        'internet bağlantısı varken başarılı signUp Right(User) döndürmeli',
+        () async {
+          // Arrange
+          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(
+            () => mockRemoteDataSource.signUp(
+              email: any(named: 'email'),
+              password: any(named: 'password'),
+              fullName: any(named: 'fullName'),
+              username: any(named: 'username'),
+            ),
+          ).thenAnswer((_) async => mockUser);
+
+          // Act
+          final result = await repository.signUp(
             email: tEmail,
             password: tPassword,
             fullName: tFullName,
-          ),
-        );
-        verifyNoMoreInteractions(mockNetworkInfo);
-        verifyNoMoreInteractions(mockRemoteDataSource);
-      },
-    );
-  });
+            username: tUsername,
+          );
 
-  group('signOut', () {
-    test(
-      'should return unit when call is successful',
-      () async {
-        // arrange
-        when(() => mockRemoteDataSource.signOut())
-            .thenAnswer((_) async => unit);
+          // Assert
+          expect(result, equals(Right<AuthFailure, User>(mockUser)));
+          verify(() => mockNetworkInfo.isConnected).called(1);
+          verify(
+            () => mockRemoteDataSource.signUp(
+              email: tEmail,
+              password: tPassword,
+              fullName: tFullName,
+              username: tUsername,
+            ),
+          ).called(1);
+        },
+      );
 
-        // act
+      test(
+        'internet bağlantısı yokken Left(NoInternetFailure) döndürmeli',
+        () async {
+          // Arrange
+          when(
+            () => mockNetworkInfo.isConnected,
+          ).thenAnswer((_) async => false);
+
+          // Act
+          final result = await repository.signUp(
+            email: tEmail,
+            password: tPassword,
+            fullName: tFullName,
+            username: tUsername,
+          );
+
+          // Assert
+          expect(
+            result,
+            equals(const Left<NoInternetFailure, User>(NoInternetFailure())),
+          );
+          verify(() => mockNetworkInfo.isConnected).called(1);
+          verifyNever(
+            () => mockRemoteDataSource.signUp(
+              email: any(named: 'email'),
+              password: any(named: 'password'),
+              fullName: any(named: 'fullName'),
+              username: any(named: 'username'),
+            ),
+          );
+        },
+      );
+
+      test(
+        'AuthException yakalandığında Left(AuthFailure) döndürmeli',
+        () async {
+          // Arrange
+          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(
+            () => mockRemoteDataSource.signUp(
+              email: any(named: 'email'),
+              password: any(named: 'password'),
+              fullName: any(named: 'fullName'),
+              username: any(named: 'username'),
+            ),
+          ).thenThrow(
+            const AuthException('Email already exists', code: 'email_exists'),
+          );
+
+          // Act
+          final result = await repository.signUp(
+            email: tEmail,
+            password: tPassword,
+            fullName: tFullName,
+            username: tUsername,
+          );
+
+          // Assert
+          expect(result.isLeft(), isTrue);
+          result.fold(
+            (failure) => expect(failure, isA<AuthFailure>()),
+            (user) => fail('Expected failure'),
+          );
+        },
+      );
+
+      test(
+        'NullResponseException yakalandığında Left(NullResponseFailure) döndürmeli',
+        () async {
+          // Arrange
+          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(
+            () => mockRemoteDataSource.signUp(
+              email: any(named: 'email'),
+              password: any(named: 'password'),
+              fullName: any(named: 'fullName'),
+              username: any(named: 'username'),
+            ),
+          ).thenThrow(NullResponseException());
+
+          // Act
+          final result = await repository.signUp(
+            email: tEmail,
+            password: tPassword,
+            fullName: tFullName,
+            username: tUsername,
+          );
+
+          // Assert
+          expect(
+            result,
+            equals(
+              const Left<NullResponseFailure, User>(NullResponseFailure()),
+            ),
+          );
+        },
+      );
+
+      test(
+        'generic Exception yakalandığında Left(UnknownFailure) döndürmeli',
+        () async {
+          // Arrange
+          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(
+            () => mockRemoteDataSource.signUp(
+              email: any(named: 'email'),
+              password: any(named: 'password'),
+              fullName: any(named: 'fullName'),
+              username: any(named: 'username'),
+            ),
+          ).thenThrow(Exception('Network error'));
+
+          // Act
+          final result = await repository.signUp(
+            email: tEmail,
+            password: tPassword,
+            fullName: tFullName,
+            username: tUsername,
+          );
+
+          // Assert
+          expect(
+            result,
+            equals(const Left<UnknownFailure, User>(UnknownFailure())),
+          );
+        },
+      );
+    });
+
+    group('signOut', () {
+      test('başarılı signOut Right(Unit) döndürmeli', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.signOut()).thenAnswer((_) async {});
+
+        // Act
         final result = await repository.signOut();
 
-        // assert
-        expect(result, equals(const Right<Failure, Unit>(unit)));
-        verify(() => mockRemoteDataSource.signOut());
-        verifyNoMoreInteractions(mockRemoteDataSource);
-      },
-    );
+        // Assert
+        expect(result, equals(const Right<AuthFailure, Unit>(unit)));
+        verify(() => mockRemoteDataSource.signOut()).called(1);
+      });
 
-    test(
-      'should return UnknownFailure when Exception occurs',
-      () async {
-        // arrange
-        when(() => mockRemoteDataSource.signOut()).thenThrow(Exception());
+      test(
+        'Exception yakalandığında Left(UnknownFailure) döndürmeli',
+        () async {
+          // Arrange
+          when(
+            () => mockRemoteDataSource.signOut(),
+          ).thenThrow(Exception('Sign out failed'));
 
-        // act
-        final result = await repository.signOut();
+          // Act
+          final result = await repository.signOut();
 
-        // assert
-        expect(
-          result,
-          equals(const Left<Failure, Unit>(UnknownFailure())),
-        );
-        verify(() => mockRemoteDataSource.signOut());
-        verifyNoMoreInteractions(mockRemoteDataSource);
-      },
-    );
-  });
+          // Assert
+          expect(
+            result,
+            equals(const Left<UnknownFailure, Unit>(UnknownFailure())),
+          );
+          verify(() => mockRemoteDataSource.signOut()).called(1);
+        },
+      );
+    });
 
-  group('authStateChanges', () {
-    test(
-      'should return stream of AuthEntity when call is successful',
-      () async {
-        // arrange
-        when(() => mockRemoteDataSource.authStateChanges)
-            .thenAnswer((_) => Stream.value(tAuthModel));
+    group('getCurrentUser', () {
+      test('mevcut kullanıcıyı döndürmeli', () {
+        // Arrange
+        when(() => mockRemoteDataSource.getCurrentUser()).thenReturn(mockUser);
 
-        // act
-        final stream = repository.authStateChanges;
+        // Act
+        final result = repository.getCurrentUser();
 
-        // assert
-        await expectLater(
-          stream,
-          emits(const Right<Failure, AuthEntity?>(tAuthEntity)),
-        );
-        verify(() => mockRemoteDataSource.authStateChanges).called(1);
-        verifyNoMoreInteractions(mockRemoteDataSource);
-      },
-    );
+        // Assert
+        expect(result, equals(mockUser));
+        verify(() => mockRemoteDataSource.getCurrentUser()).called(1);
+      });
 
-    test(
-      'should return AuthFailure when AuthException occurs',
-      () async {
-        // arrange
-        when(() => mockRemoteDataSource.authStateChanges)
-            .thenAnswer((_) => Stream.error(const AuthException('Auth error')));
+      test('kullanıcı yoksa null döndürmeli', () {
+        // Arrange
+        when(() => mockRemoteDataSource.getCurrentUser()).thenReturn(null);
 
-        // act
-        final stream = repository.authStateChanges;
+        // Act
+        final result = repository.getCurrentUser();
 
-        // assert
-        await expectLater(
-          stream,
-          emits(const Left<Failure, AuthEntity?>(AuthFailure())),
-        );
-        verify(() => mockRemoteDataSource.authStateChanges).called(1);
-        verifyNoMoreInteractions(mockRemoteDataSource);
-      },
-    );
-
-    test(
-      'should return UnknownFailure when Exception occurs',
-      () async {
-        // arrange
-        when(() => mockRemoteDataSource.authStateChanges)
-            .thenAnswer((_) => Stream.error(Exception()));
-
-        // act
-        final stream = repository.authStateChanges;
-
-        // assert
-        await expectLater(
-          stream,
-          emits(const Left<Failure, AuthEntity?>(UnknownFailure())),
-        );
-        verify(() => mockRemoteDataSource.authStateChanges).called(1);
-        verifyNoMoreInteractions(mockRemoteDataSource);
-      },
-    );
+        // Assert
+        expect(result, isNull);
+        verify(() => mockRemoteDataSource.getCurrentUser()).called(1);
+      });
+    });
   });
 }
