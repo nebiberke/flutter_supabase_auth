@@ -28,32 +28,32 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   @override
-  void initState() {
-    super.initState();
-    final currentUserId = context.read<ProfileBloc>().state.profile.id;
-    context.read<UsersBloc>().add(
-      GetAllProfilesEvent(currentUserId: currentUserId),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: PaddingConstants.allHigh(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const _WelcomeTitle(),
-              context.verticalSpacingVeryHigh2x,
-              Text(
-                LocaleKeys.home_dashboard_description.tr(),
-                style: context.textTheme.titleMedium,
-              ),
-              context.verticalSpacingVeryHigh2x,
-              const _UsersList(),
-            ],
+    return BlocListener<ProfileBloc, ProfileState>(
+      listener: (context, state) {
+        if (state.status == BlocStatus.loaded && state.profile.id.isNotEmpty) {
+          context.read<UsersBloc>().add(
+            GetAllProfilesEvent(currentUserId: state.profile.id),
+          );
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Padding(
+            padding: PaddingConstants.allHigh(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _WelcomeTitle(),
+                context.verticalSpacingVeryHigh2x,
+                Text(
+                  LocaleKeys.home_dashboard_description.tr(),
+                  style: context.textTheme.titleMedium,
+                ),
+                context.verticalSpacingVeryHigh2x,
+                const _UsersList(),
+              ],
+            ),
           ),
         ),
       ),
