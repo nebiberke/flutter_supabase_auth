@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_supabase_auth/app/constants/theme_constants.dart';
 import 'package:flutter_supabase_auth/core/extensions/context_extension.dart';
 
-class CustomElevatedButton extends StatelessWidget {
+final class CustomElevatedButton extends StatelessWidget {
   const CustomElevatedButton({
     required this.text,
     required this.onPressed,
@@ -26,9 +25,9 @@ class CustomElevatedButton extends StatelessWidget {
           ? const CircularProgressIndicator.adaptive()
           : Text(
               text,
-              style: context.textTheme.bodyLarge?.copyWith(
+              style: context.textTheme.labelLarge?.copyWith(
                 color: context.colorScheme.onPrimary,
-                fontWeight: ThemeConstants.fontWeightBold,
+                fontWeight: FontWeight.bold,
               ),
             ),
     );

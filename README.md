@@ -12,13 +12,12 @@ Bu proje, yalnızca kimlik doğrulama işlemlerini değil, aynı zamanda kullan�
 - **Cacheleme**: Kullanıcı verileri ve uygulama durumu **hydrated_bloc** ile saklanarak hızlı erişim sağlanmaktadır.
 - **Gerçek Zamanlı Kullanıcı Verisi**: Kullanıcı bilgileri, **Supabase** ile gerçek zamanlı olarak veritabanından çekilmektedir.
 
-Uygulama genişletilebilir ve modüler bir yapıya sahip olup, farklı projelere kolayca entegre edilebilir. **flutter_bloc** ile state yönetimi sağlanırken, **get_it** bağımlılık enjeksiyonu için kullanılmıştır. Ayrıca, **hydrated_bloc** ile durumların kalıcı hale getirilmesi sağlanmıştır. **go_router** ile dinamik yönlendirme yönetimi uygulanmıştır. 
+Uygulama genişletilebilir ve modüler bir yapıya sahip olup, farklı projelere kolayca entegre edilebilir. **flutter_bloc** ile state yönetimi sağlanırken, **get_it** bağımlılık enjeksiyonu için kullanılmıştır. Ayrıca, **hydrated_bloc** ile durumların kalıcı hale getirilmesi sağlanmıştır. **go_router** ile dinamik yönlendirme yönetimi uygulanmıştır.
 
 ## Özellikler
 
 - **Supabase Authentication**: E-posta ve parola tabanlı kullanıcı kaydı ve oturum yönetimi.
 - **BLoC ile State Yönetimi**: Tüm uygulama akışı **flutter_bloc** kullanılarak düzenlenmiştir.
-- **Hata Yönetimi**: **dartz** ve **equatable** kullanılarak detaylı hata yönetimi sağlanmıştır.
 - **Profil Resmi Yükleme ve Güncelleme**: **image_picker** ve **cached_network_image** ile medya yönetimi yapılmaktadır.
 - **Çoklu Dil Desteği**: **easy_localization** entegrasyonu ile uygulama birden fazla dilde kullanılabilir.
 - **Tema Yönetimi**: Açık ve koyu tema desteği bulunmaktadır.
@@ -27,30 +26,30 @@ Uygulama genişletilebilir ve modüler bir yapıya sahip olup, farklı projelere
 - **Yönlendirme Yönetimi**: **go_router** ile esnek ve yönetilebilir bir navigasyon sistemi oluşturulmuştur.
 - **Test Kapsamı**: **mocktail** ile birim testleri yazılmıştır.
 
-## Önizleme
+## 📱 Ekran Görüntüleri
 
 <table>
   <tr>
-    <td>Login</td>
-    <td>Register</td>
+    <td>Kimlik Doğrulama</td>
+    <td>Anasayfa</td>
   </tr>
   <tr>
-     <td><img src="screenshots/login_screen.png"></td>
-     <td><img src="screenshots/register_screen.png"></td>
-  </tr>
-  <tr>
-    <td>Home</td>
-    <td>Profile</td>
-  </tr>
-  <tr>
+     <td><img src="screenshots/auth_screen.png"></td>
      <td><img src="screenshots/home_screen.png"></td>
+  </tr>
+  <tr>
+    <td>Profil</td>
+    <td>Kullanıcı Profili</td>
+  </tr>
+  <tr>
      <td><img src="screenshots/profile_screen.png"></td>
+     <td><img src="screenshots/user_profile_screen.png"></td>
   </tr>
 </table>
 
-## Mimari
+## 🏗️ Mimari Yapı
 
-Bu proje, [**Clean Architecture**](https://github.com/ResoCoder/flutter-tdd-clean-architecture-course#readme) prensiplerine göre yapılandırılmıştır. **Features**, **Core** ve **App** olmak üzere üç ana katmandan oluşmaktadır.
+Proje [Clean Architecture](https://github.com/ResoCoder/flutter-tdd-clean-architecture-course#readme) yaklaşımına göre yapılandırılmıştır:
 
 ```
 lib/
@@ -92,106 +91,167 @@ lib/
 └── test/
 ```
 
-## Kullanılan Paketler
+## 🔧 Kullanılan Paketler
+
+### Ana Teknolojiler
+
+- [Flutter](https://docs.flutter.dev) ^3.32.5
+- [Dart](https://dart.dev) ^3.8.1
 
 ### State Management
+
 - [flutter_bloc](https://pub.dev/packages/flutter_bloc)
 - [hydrated_bloc](https://pub.dev/packages/hydrated_bloc)
 
 ### Routing
+
 - [go_router](https://pub.dev/packages/go_router)
 
 ### Localization
+
 - [easy_localization](https://pub.dev/packages/easy_localization)
 
 ### Dependency Injection
+
 - [get_it](https://pub.dev/packages/get_it)
 
 ### Data Class Generation
+
 - [freezed_annotation](https://pub.dev/packages/freezed_annotation)
 - [json_annotation](https://pub.dev/packages/json_annotation)
 
 ### UI ve Utility
-- [cupertino_icons](https://pub.dev/packages/cupertino_icons)
+
 - [flutter_screenutil](https://pub.dev/packages/flutter_screenutil)
-- [logger](https://pub.dev/packages/logger)
-- [path_provider](https://pub.dev/packages/path_provider)
 - [image_picker](https://pub.dev/packages/image_picker)
-- [flutter_native_splash](https://pub.dev/packages/flutter_native_splash)
+- [cached_network_image](https://pub.dev/packages/cached_network_image)
+- [logger](https://pub.dev/packages/logger)
 
 ### Networking ve Veritabanı
+
 - [supabase_flutter](https://pub.dev/packages/supabase_flutter)
-- [internet_connection_checker_plus](https://pub.dev/packages/internet_connection_checker_plus)
 
 ### Fonksiyonel Programlama ve Cacheleme
+
 - [dartz](https://pub.dev/packages/dartz)
-- [equatable](https://pub.dev/packages/equatable)
 
 ### Kod Üretimi ve Test
-- [build_runner](https://pub.dev/packages/build_runner)
+
 - [freezed](https://pub.dev/packages/freezed)
 - [json_serializable](https://pub.dev/packages/json_serializable)
 - [mocktail](https://pub.dev/packages/mocktail)
 - [very_good_analysis](https://pub.dev/packages/very_good_analysis)
+- [envied](https://pub.dev/packages/envied)
 
-## Kurulum
+## 🧪 Testler
 
-### 1. Depoyu Klonlayın
+- AuthRepository testleri
+- ProfileRepository testleri
+- UseCase testleri
 
-Projeyi yerel ortamınıza almak için aşağıdaki komutu çalıştırın:
-
-```sh
-git clone https://github.com/nebiberke/flutter_supabase_auth
+```bash
+flutter test
 ```
 
-Ardından proje dizinine gidin:
+## 🛠️ Supabase Yapılandırması
 
-```sh
-cd project_directory
+### Database Tabloları
+
+#### Profiles Tablosu
+
+```sql
+CREATE TABLE public.profiles (
+    id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+    full_name TEXT,
+    username TEXT UNIQUE,
+    email TEXT,
+    avatar_url TEXT,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
 ```
 
-### 2. Bağımlılıkları Yükleyin
+### Otomatik Profil Oluşturma
 
-Flutter bağımlılıklarını yüklemek için aşağıdaki komutu çalıştırın:
+```sql
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.profiles (
+        id,
+        full_name,
+        avatar_url,
+        email,
+        username
+    )
+    VALUES (
+        NEW.id,
+        NEW.raw_user_meta_data ->> 'full_name',
+        NEW.raw_user_meta_data ->> 'avatar_url',
+        NEW.email,
+        NEW.raw_user_meta_data ->> 'username'
+    );
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-```sh
+
+CREATE OR REPLACE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+```
+
+### Updated At Trigger
+
+```sql
+CREATE OR REPLACE FUNCTION public.sync_auth_user_update_to_profiles()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (TG_OP = 'UPDATE') THEN
+        UPDATE public.profiles
+        SET
+            email      = NEW.email,
+            updated_at = NOW()
+        WHERE id = NEW.id;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+## Storage Yapılandırması
+
+### Avatars Bucket
+
+```sql
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('avatars', 'avatars', TRUE);
+```
+
+## 🚀 Kurulum Adımları
+
+```bash
+# 1. Depoyu klonlayın
+git clone https://github.com/your-username/flutter_supabase_auth.git
+cd flutter_supabase_auth
+
+# 2. Paketleri yükleyin
 flutter pub get
-```
 
-### 3. Supabase Yapılandırması
+# 3. Ortam dosyasını oluşturun
+mkdir env && touch env/.env
 
-Uygulamanın çalışabilmesi için **Supabase** tarafında aşağıdaki ayarlamaları yapmanız gerekmektedir:
+# 4. Supabase bilgilerinizi girin
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
 
-- **Kimlik Doğrulama Sağlayıcısı**: Supabase paneline giriş yapın ve **Authentication > Providers** sekmesinde **Email** sağlayıcısını etkinleştirin.
-- **Depolama Bucket’ı**: **Storage** sekmesine giderek `profiles` isimli bir **bucket** oluşturun. Bu, kullanıcıların profil resimlerini saklamak için gereklidir.
+# 5. Kod üretimini başlatın
+dart run build_runner build
 
-### 4. Ortam Değişkenlerini Ayarlayın
-
-Projeye özel Supabase bağlantı bilgilerini **env/.env** dosyanıza ekleyin:
-
-```sh
-SUPABASE_URL="YOUR_SUPABASE_URL"
-SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
-```
-
-### 5. Dil Dosyalarını ve Kod Üretimini Gerçekleştirin
-
-Uygulamanın **çoklu dil desteği** için aşağıdaki komutu çalıştırarak dil dosyalarının oluşturulmasını sağlayın:
-
-```sh
-sh scripts/lang.sh
-```
-
-Kod üretme sürecini başlatmak için aşağıdaki komutu çalıştırın:
-
-```sh
-sh scripts/build_runner.sh
-```
-
-### 6. Uygulamayı Başlatın
-
-Gerekli yapılandırmalar tamamlandıktan sonra aşağıdaki komut ile uygulamayı başlatabilirsiniz:
-
-```sh
+# 6. Uygulamayı başlatın
 flutter run
 ```
+
+## 👤 Geliştirici
+
+- **GitHub**: [@nebiberke](https://github.com/nebiberke)
+- **LinkedIn**: [Nebi Berke](https://linkedin.com/in/nebiberke)

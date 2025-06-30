@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_supabase_auth/core/utils/logger/logger_utils.dart';
 
+/// A BlocObserver that logs the events, changes, transitions, errors, created, and closed events.
 final class AppBlocObserver extends BlocObserver {
   AppBlocObserver({
     this.logEvents = true,
@@ -11,13 +12,25 @@ final class AppBlocObserver extends BlocObserver {
     this.logClosed = true,
   });
 
+  /// Whether to log the events.
   final bool logEvents;
+
+  /// Whether to log the changes.
   final bool logChanges;
+
+  /// Whether to log the transitions.
   final bool logTransitions;
+
+  /// Whether to log the errors.
   final bool logErrors;
+
+  /// Whether to log the created events.
   final bool logCreated;
+
+  /// Whether to log the closed events.
   final bool logClosed;
 
+  /// Log the event.
   @override
   void onEvent(Bloc<dynamic, dynamic> bloc, Object? event) {
     super.onEvent(bloc, event);
@@ -26,6 +39,7 @@ final class AppBlocObserver extends BlocObserver {
     }
   }
 
+  /// Log the change.
   @override
   void onChange(BlocBase<dynamic> bloc, Change<dynamic> change) {
     super.onChange(bloc, change);
@@ -34,6 +48,7 @@ final class AppBlocObserver extends BlocObserver {
     }
   }
 
+  /// Log the transition.
   @override
   void onTransition(
     Bloc<dynamic, dynamic> bloc,
@@ -45,6 +60,7 @@ final class AppBlocObserver extends BlocObserver {
     }
   }
 
+  /// Log the error.
   @override
   void onError(BlocBase<dynamic> bloc, Object error, StackTrace stackTrace) {
     super.onError(bloc, error, stackTrace);
@@ -53,6 +69,7 @@ final class AppBlocObserver extends BlocObserver {
     }
   }
 
+  /// Log the close.
   @override
   void onClose(BlocBase<dynamic> bloc) {
     super.onClose(bloc);
@@ -61,6 +78,7 @@ final class AppBlocObserver extends BlocObserver {
     }
   }
 
+  /// Log the create.
   @override
   void onCreate(BlocBase<dynamic> bloc) {
     super.onCreate(bloc);

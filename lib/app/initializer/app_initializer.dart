@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_supabase_auth/app/env/env.dart';
-// import 'package:flutter_supabase_auth/core/clients/cache/hive/hive_registrar.g.dart';
 import 'package:flutter_supabase_auth/core/utils/logger/logger_utils.dart';
 import 'package:flutter_supabase_auth/core/utils/observer/bloc_observer.dart';
 import 'package:flutter_supabase_auth/locator.dart';
@@ -9,7 +8,7 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class AppInitializer {
+final class AppInitializer {
   const AppInitializer._();
 
   /// The primary entry point to initialize all essential app services and configurations.
@@ -39,14 +38,13 @@ class AppInitializer {
   /// This step is usually performed before anything else so that it can capture
   /// logs or errors during the entire initialization process.
   static void _initLogging() {
-    // Example: LoggerUtils().initialize();
     LoggerUtils().logInfo('Logger initialized.');
   }
 
   /// Initializes the core services required by the application:
   /// - Supabase: for database and authentication.
-  /// - Dependency Injection container (Locator).
   /// - HydratedBloc: for state persistence.
+  /// - Dependency Injection container (Locator).
   /// - Hive: for local storage.
   static Future<void> _initCoreServices() async {
     // Initialize Supabase.
@@ -57,8 +55,9 @@ class AppInitializer {
 
     // Initialize HydratedBloc for persistent state management.
     HydratedBloc.storage = await HydratedStorage.build(
-      storageDirectory:
-          HydratedStorageDirectory((await getTemporaryDirectory()).path),
+      storageDirectory: HydratedStorageDirectory(
+        (await getTemporaryDirectory()).path,
+      ),
     );
 
     // Initialize dependency injection (Service Locator).
@@ -74,9 +73,6 @@ class AppInitializer {
   /// Sets up a global BlocObserver to monitor BLoC state transitions and events.
   /// This observer helps in logging or debugging changes across all BLoCs in the app.
   static void _initBlocObserver() {
-    Bloc.observer = AppBlocObserver(
-      logEvents: false,
-      logTransitions: false,
-    );
+    Bloc.observer = AppBlocObserver(logEvents: false, logTransitions: false);
   }
 }

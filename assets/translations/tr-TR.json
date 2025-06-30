@@ -1,8 +1,8 @@
 {
     "auth": {
       "actions": {
-        "login": "Giriş Yap",
-        "register": "Kayıt Ol",
+        "sign_in": "Giriş Yap",
+        "sign_up": "Kayıt Ol",
         "logout": "Çıkış Yap"
       },
       "status": {
@@ -11,6 +11,7 @@
       },
       "fields": {
         "full_name": "Ad Soyad",
+        "username": "Kullanıcı Adı",
         "email": "E-posta",
         "password": "Şifre"
       },
@@ -39,6 +40,8 @@
     },
     "home": {
       "welcome": "Hoş geldin, {}",
+      "users": "Kullanıcılar",
+      "no_users": "Sizden başka kullanıcı yok",
       "tabs": {
         "dashboard": "Ana Sayfa",
         "profile": "Profil"
@@ -59,6 +62,11 @@
         "gallery": "Galeri",
         "updated": "Profil başarıyla güncellendi."
       }
+    },
+    "user_profile": {
+      "title": "Kullanıcı Profili",
+      "not_found": "Kullanıcı bulunamadı.",
+      "user_id": "Kullanıcı ID"
     },
     "common": {
       "retry": "Tekrar Dene"
@@ -91,6 +99,11 @@
           "session_expired": "Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.",
           "user_banned": "Hesabınız yasaklanmıştır. Lütfen destek ile iletişime geçin.",
           "invalid_email": "Geçersiz e-posta adresi.",
+          "otp_expired": "Onay kodunuzun süresi doldu veya yanlış. Lütfen tekrar deneyiniz.",
+          "phone_exists": "Bu telefon numarası zaten kayıtlı.",
+          "phone_not_confirmed": "Telefon numaranız henüz doğrulanmadı.",
+          "over_sms_rate_limit": "Çok fazla deneme yaptınız. Lütfen {seconds} saniye sonra tekrar deneyiniz.",
+          "google_sign_in_error": "Google girişinde bir hata oluştu. Lütfen tekrar deneyiniz veya farklı bir yöntem kullanınız.",
           "profile_photo": {
             "upload_failed": "Profil fotoğrafı yüklenemedi.",
             "update_failed": "Profil fotoğrafı güncellenemedi.",
