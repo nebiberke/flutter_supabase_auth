@@ -231,7 +231,7 @@ VALUES ('avatars', 'avatars', TRUE);
 
 ```bash
 # 1. Depoyu klonlayın
-git clone https://github.com/your-username/flutter_supabase_auth.git
+git clone https://github.com/nebiberke/flutter_supabase_auth.git
 cd flutter_supabase_auth
 
 # 2. Paketleri yükleyin
