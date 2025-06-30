@@ -74,13 +74,6 @@ class _UserProfileViewState extends State<UserProfileView> {
             content: profile.email,
             icon: Icons.email,
           ),
-          context.verticalSpacingLow,
-          _buildInfoCard(
-            context,
-            title: LocaleKeys.user_profile_user_id.tr(),
-            content: profile.id,
-            icon: Icons.person_pin,
-          ),
         ],
       ),
     );
