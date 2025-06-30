@@ -31,32 +31,55 @@ mixin ProfileViewMixin on State<ProfileView> {
   /// A notifier to indicate whether the full name is edited.
   final ValueNotifier<bool> isEditedNotifier = ValueNotifier(false);
 
+  /// Inıt State
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initializeUserData());
+  }
+
+  /// Initialize User Data
+  void _initializeUserData() {
+    final user = context.read<ProfileBloc>().state.profile;
+    if (user.fullName.isNotEmpty) {
+      fullNameController.text = user.fullName;
+      initialFullName = user.fullName;
+    }
+  }
+
+  /// Dispose
+  @override
+  void dispose() {
+    fullNameController.dispose();
+    isEditedNotifier.dispose();
+    super.dispose();
+  }
+
   /// Handles the sign out event.
   void handleLogout() {
     context.read<AuthBloc>().add(SignOutEvent());
   }
 
-  /// Handles the profile state changes event.
-  void handleProfileState(BuildContext context, ProfileState state) {
+  /// Handles the profile update state changes event.
+  void handleProfileUpdateState(BuildContext context, ProfileState state) {
     if (state.status == BlocStatus.error) {
-      CustomErrorWidget.show<void>(
-        context,
-        failure: state.failure!,
-      );
+      CustomErrorWidget.show<void>(context, failure: state.failure!);
     } else if (state.status == BlocStatus.loaded) {
       SnackbarUtils.showSnackbar(
         context: context,
         message: LocaleKeys.home_profile_updated.tr(),
         state: SnackbarState.success,
       );
+      fullNameController.text = state.profile.fullName;
+      initialFullName = state.profile.fullName;
     }
   }
 
   /// Handles the theme changed event.
   void handleThemeChanged({required bool isLightTheme}) {
-    context.read<ThemeCubit>().changeTheme(
-          brightness: isLightTheme ? Brightness.dark : Brightness.light,
-        );
+    context.read<ThemeCubit>().setThemeMode(
+      isLightTheme ? ThemeMode.light : ThemeMode.dark,
+    );
   }
 
   /// Shows the language dialog.
@@ -101,10 +124,10 @@ mixin ProfileViewMixin on State<ProfileView> {
     final newFullName = fullNameController.text.trim();
     if (newFullName.isEmpty) return;
     context.read<ProfileBloc>().add(
-          UpdateProfileEvent(
-            profile: currentProfile.copyWith(fullName: newFullName),
-          ),
-        );
+      UpdateProfileEvent(
+        profile: currentProfile.copyWith(fullName: newFullName),
+      ),
+    );
     isEditedNotifier.value = false;
     initialFullName = newFullName;
   }
@@ -124,23 +147,17 @@ mixin ProfileViewMixin on State<ProfileView> {
 
       if (imageFile != null && mounted) {
         context.read<ProfileBloc>().add(
-              UpdateProfileEvent(
-                profile: currentProfile,
-                imageFile: imageFile,
-              ),
-            );
+          UpdateProfileEvent(profile: currentProfile, imageFile: imageFile),
+        );
       }
     } on Exception catch (e, stackTrace) {
-      LoggerUtils().logFatalError(
-        'Error picking photo: $e',
-        stackTrace,
-      );
+      LoggerUtils().logFatalError('Error picking photo: $e', stackTrace);
 
       if (mounted) {
         SnackbarUtils.showSnackbar(
           context: context,
-          message:
-              LocaleKeys.errors_messages_auth_profile_photo_pick_failed.tr(),
+          message: LocaleKeys.errors_messages_auth_profile_photo_pick_failed
+              .tr(),
           state: SnackbarState.error,
         );
       }
@@ -152,17 +169,13 @@ mixin ProfileViewMixin on State<ProfileView> {
     showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text(
-          LocaleKeys.home_profile_choose_photo.tr(),
-        ),
+        title: Text(LocaleKeys.home_profile_choose_photo.tr()),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: Text(
-                LocaleKeys.home_profile_camera.tr(),
-              ),
+              title: Text(LocaleKeys.home_profile_camera.tr()),
               onTap: () {
                 context.pop();
                 _pickImage(ImageSource.camera, currentProfile);
@@ -170,9 +183,7 @@ mixin ProfileViewMixin on State<ProfileView> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: Text(
-                LocaleKeys.home_profile_gallery.tr(),
-              ),
+              title: Text(LocaleKeys.home_profile_gallery.tr()),
               onTap: () {
                 context.pop();
                 _pickImage(ImageSource.gallery, currentProfile);

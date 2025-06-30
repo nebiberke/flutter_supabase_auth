@@ -1,60 +1,47 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_supabase_auth/core/enums/auth_status.dart';
 import 'package:flutter_supabase_auth/core/usecases/usecase.dart';
-import 'package:flutter_supabase_auth/features/auth/domain/entities/auth_entity.dart';
-import 'package:flutter_supabase_auth/features/auth/domain/usecases/uc_auth_state_changes.dart';
+import 'package:flutter_supabase_auth/features/auth/domain/usecases/uc_get_current_user.dart';
 import 'package:flutter_supabase_auth/features/auth/domain/usecases/uc_sign_in.dart';
 import 'package:flutter_supabase_auth/features/auth/domain/usecases/uc_sign_out.dart';
 import 'package:flutter_supabase_auth/features/auth/domain/usecases/uc_sign_up.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_event.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_state.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
 
-class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
+class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({
     required UCSignIn signIn,
     required UCSignUp signUp,
     required UCSignOut signOut,
-    required UCAuthStateChanges authStateChanges,
-  })  : _signIn = signIn,
-        _signUp = signUp,
-        _signOut = signOut,
-        _authStateChanges = authStateChanges,
-        super(AuthState()) {
+    required UCGetCurrentUser getCurrentUser,
+  }) : _signIn = signIn,
+       _signUp = signUp,
+       _signOut = signOut,
+       _getCurrentUser = getCurrentUser,
+       super(const AuthState()) {
     on<SignInEvent>(_onSignInEvent);
     on<SignUpEvent>(_onSignUpEvent);
     on<SignOutEvent>(_onSignOutEvent);
-    on<AuthStateChangesEvent>(_onCheckAuthStatusEvent);
+    on<AuthStartedEvent>(_onAuthStartedEvent);
   }
+
   final UCSignIn _signIn;
   final UCSignUp _signUp;
   final UCSignOut _signOut;
-  final UCAuthStateChanges _authStateChanges;
+  final UCGetCurrentUser _getCurrentUser;
 
-  Future<void> _onCheckAuthStatusEvent(
-    AuthStateChangesEvent event,
+  Future<void> _onAuthStartedEvent(
+    AuthStartedEvent event,
     Emitter<AuthState> emit,
-  ) {
-    return emit.onEach(
-      _authStateChanges(NoParams()),
-      onData: (data) => data.fold(
-        (failure) => emit(
-          state.copyWith(
-            status: AuthStatus.error,
-            failure: failure,
-          ),
-        ),
-        (auth) {
-          return emit(
-            state.copyWith(
-              status: auth != null
-                  ? AuthStatus.authenticated
-                  : AuthStatus.unauthenticated,
-              auth: auth,
-            ),
-          );
-        },
-      ),
-    );
+  ) async {
+    final result = await _getCurrentUser(NoParams());
+    result.fold((failure) => emit(AuthState.unauthenticated()), (user) {
+      if (user != null) {
+        emit(state.copyWith(status: AuthStatus.authenticated, user: user));
+      } else {
+        emit(AuthState.unauthenticated());
+      }
+    });
   }
 
   Future<void> _onSignInEvent(
@@ -64,27 +51,14 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     emit(state.copyWith(status: AuthStatus.loading));
 
     final result = await _signIn(
-      SignInParams(
-        email: event.email,
-        password: event.password,
-      ),
+      SignInParams(email: event.email, password: event.password),
     );
 
     result.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: AuthStatus.error,
-          failure: failure,
-        ),
-      ),
-      (auth) {
-        return emit(
-          state.copyWith(
-            status: AuthStatus.authenticated,
-            auth: auth,
-          ),
-        );
-      },
+      (failure) =>
+          emit(state.copyWith(status: AuthStatus.error, failure: failure)),
+      (user) =>
+          emit(state.copyWith(status: AuthStatus.authenticated, user: user)),
     );
   }
 
@@ -99,21 +73,15 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
         email: event.email,
         password: event.password,
         fullName: event.fullName,
+        username: event.username,
       ),
     );
 
     result.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: AuthStatus.error,
-          failure: failure,
-        ),
-      ),
-      (_) => emit(
-        state.copyWith(
-          status: AuthStatus.authenticated,
-        ),
-      ),
+      (failure) =>
+          emit(state.copyWith(status: AuthStatus.error, failure: failure)),
+      (user) =>
+          emit(state.copyWith(status: AuthStatus.authenticated, user: user)),
     );
   }
 
@@ -126,37 +94,9 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     final result = await _signOut(NoParams());
 
     result.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: AuthStatus.error,
-          failure: failure,
-        ),
-      ),
-      (_) => emit(
-        state.copyWith(
-          status: AuthStatus.unauthenticated,
-        ),
-      ),
+      (failure) =>
+          emit(state.copyWith(status: AuthStatus.error, failure: failure)),
+      (_) => emit(AuthState.unauthenticated()),
     );
-  }
-
-  @override
-  AuthState? fromJson(Map<String, dynamic> json) {
-    try {
-      return AuthState(
-        status: AuthStatus.values[json['status'] as int],
-        auth: AuthEntity.fromJson(json['auth'] as Map<String, dynamic>),
-      );
-    } on Exception catch (_) {
-      return AuthState();
-    }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(AuthState state) {
-    return {
-      'status': state.status.index,
-      'auth': state.auth?.toJson(),
-    };
   }
 }

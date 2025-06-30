@@ -1,136 +1,97 @@
+import 'dart:async';
+
+import 'package:dartz/dartz.dart';
+import 'package:flutter_supabase_auth/app/errors/failure.dart';
 import 'package:flutter_supabase_auth/core/enums/bloc_status.dart';
-import 'package:flutter_supabase_auth/core/usecases/usecase.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/entities/profile_entity.dart';
-import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_delete_profile.dart';
-import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_get_current_profile.dart';
-import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_get_profile_with_id.dart';
-import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_profile_state_changes.dart';
+import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_get_profile_with_user_id.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_update_profile.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_upload_profile_photo.dart';
+import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_watch_profile_state.dart';
 import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile_event.dart';
 import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile_state.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 
 class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
   ProfileBloc({
-    required UCGetCurrentProfile getCurrentProfile,
     required UCGetProfileWithId getProfileWithId,
-    required UCDeleteProfile deleteProfile,
     required UCUpdateProfile updateProfile,
-    required UCProfileStateChanges profileStateChanges,
+    required UCWatchProfileState watchProfileState,
     required UCUploadProfilePhoto uploadProfilePhoto,
-  })  : _getCurrentProfile = getCurrentProfile,
-        _getProfileWithId = getProfileWithId,
-        _deleteProfile = deleteProfile,
-        _updateProfile = updateProfile,
-        _profileStateChanges = profileStateChanges,
-        _uploadProfilePhoto = uploadProfilePhoto,
-        super(ProfileState()) {
-    on<GetCurrentProfileEvent>(_onGetCurrentProfile);
-    on<GetProfileWithIdEvent>(_onGetProfileWithId);
-    on<DeleteProfileEvent>(_onDeleteProfile);
-    on<ProfileStateChangesEvent>(_onGetProfileStream);
+  }) : _getProfileWithId = getProfileWithId,
+       _updateProfile = updateProfile,
+       _watchProfileState = watchProfileState,
+       _uploadProfilePhoto = uploadProfilePhoto,
+       super(ProfileState()) {
+    on<GetProfileWithIdEvent>(_ongetProfileWithId);
+    on<WatchProfileStateEvent>(_onWatchProfileState);
     on<UpdateProfileEvent>(_onUpdateProfile);
+    on<ProfileStreamUpdated>(_onProfileStreamUpdated);
+    on<SignOutProfileEvent>(_onSignOutProfile);
   }
 
-  final UCGetCurrentProfile _getCurrentProfile;
   final UCGetProfileWithId _getProfileWithId;
-  final UCDeleteProfile _deleteProfile;
   final UCUpdateProfile _updateProfile;
-  final UCProfileStateChanges _profileStateChanges;
+  final UCWatchProfileState _watchProfileState;
   final UCUploadProfilePhoto _uploadProfilePhoto;
+  StreamSubscription<Either<Failure, ProfileEntity?>>? _profileSubscription;
 
-  Future<void> _onGetProfileStream(
-    ProfileStateChangesEvent event,
+  Future<void> _onSignOutProfile(
+    SignOutProfileEvent event,
     Emitter<ProfileState> emit,
   ) async {
-    return emit.onEach(
-      _profileStateChanges(NoParams()),
-      onData: (failureOrProfile) => failureOrProfile.fold(
-        (failure) => emit(
-          state.copyWith(
-            status: BlocStatus.error,
-            failure: failure,
-          ),
-        ),
-        (profile) {
-          return emit(
-            state.copyWith(
-              status: BlocStatus.loaded,
-              profile: profile,
-            ),
+    await _profileSubscription?.cancel();
+    emit(ProfileState());
+  }
+
+  Future<void> _onWatchProfileState(
+    WatchProfileStateEvent event,
+    Emitter<ProfileState> emit,
+  ) async {
+    await _profileSubscription?.cancel();
+    _profileSubscription =
+        _watchProfileState(
+          WatchProfileStateParams(userId: event.userId),
+        ).listen((failureOrProfile) {
+          failureOrProfile.fold(
+            (failure) {
+              add(ProfileStreamUpdated(failure: failure));
+            },
+            (profile) {
+              add(ProfileStreamUpdated(profile: profile));
+            },
           );
-        },
-      ),
-    );
+        });
   }
 
-  Future<void> _onGetCurrentProfile(
-    GetCurrentProfileEvent event,
+  void _onProfileStreamUpdated(
+    ProfileStreamUpdated event,
     Emitter<ProfileState> emit,
-  ) async {
-    emit(state.copyWith(status: BlocStatus.loading));
-    final failureOrProfile = await _getCurrentProfile(NoParams());
-    failureOrProfile.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: BlocStatus.error,
-          failure: failure,
-        ),
-      ),
-      (profile) => emit(
-        state.copyWith(
-          status: BlocStatus.loaded,
-          profile: profile,
-        ),
-      ),
-    );
+  ) {
+    if (event.failure != null) {
+      emit(state.copyWith(status: BlocStatus.error, failure: event.failure));
+    } else {
+      emit(state.copyWith(status: BlocStatus.loaded, profile: event.profile));
+    }
   }
 
-  Future<void> _onGetProfileWithId(
+  Future<void> _ongetProfileWithId(
     GetProfileWithIdEvent event,
     Emitter<ProfileState> emit,
   ) async {
     emit(state.copyWith(status: BlocStatus.loading));
-    final failureOrProfile = await _getProfileWithId(
-      GetProfileWithIdParams(
-        id: event.id,
-      ),
-    );
-    failureOrProfile.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: BlocStatus.error,
-          failure: failure,
-        ),
-      ),
-      (profile) => emit(
-        state.copyWith(
-          status: BlocStatus.loaded,
-          profile: profile,
-        ),
-      ),
-    );
-  }
 
-  Future<void> _onDeleteProfile(
-    DeleteProfileEvent event,
-    Emitter<ProfileState> emit,
-  ) async {
-    emit(state.copyWith(status: BlocStatus.loading));
-    final failureOrUnit = await _deleteProfile(NoParams());
-    failureOrUnit.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: BlocStatus.error,
-          failure: failure,
-        ),
-      ),
-      (_) => emit(
-        state.copyWith(
-          status: BlocStatus.loaded,
-        ),
-      ),
+    final failureOrProfile = await _getProfileWithId(
+      GetProfileWithIdParams(userId: event.userId),
+    );
+
+    failureOrProfile.fold(
+      (failure) =>
+          emit(state.copyWith(status: BlocStatus.error, failure: failure)),
+      (profile) {
+        emit(state.copyWith(status: BlocStatus.loaded, profile: profile));
+        add(WatchProfileStateEvent(userId: event.userId));
+      },
     );
   }
 
@@ -144,17 +105,19 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
 
     if (event.imageFile != null) {
       final failureOrUrl = await _uploadProfilePhoto(
-        UploadProfilePhotoParams(imageFile: event.imageFile!),
+        UploadProfilePhotoParams(
+          imageFile: event.imageFile!,
+          userId: event.profile.id,
+        ),
       );
 
       failureOrUrl.fold(
-        (failure) => emit(
-          state.copyWith(
-            status: BlocStatus.error,
-            failure: failure,
-          ),
-        ),
-        (url) => avatarUrl = url,
+        (failure) {
+          emit(state.copyWith(status: BlocStatus.error, failure: failure));
+        },
+        (url) {
+          avatarUrl = url;
+        },
       );
     }
 
@@ -167,13 +130,13 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
     );
 
     failureOrUnit.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: BlocStatus.error,
-          failure: failure,
-        ),
-      ),
-      (_) => null,
+      (failure) =>
+          emit(state.copyWith(status: BlocStatus.error, failure: failure)),
+      (_) {
+        return emit(
+          state.copyWith(status: BlocStatus.loaded, profile: updatedProfile),
+        );
+      },
     );
   }
 
@@ -182,8 +145,9 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
     try {
       return ProfileState(
         status: BlocStatus.values[json['status'] as int],
-        profile:
-            ProfileEntity.fromJson(json['profile'] as Map<String, dynamic>),
+        profile: ProfileEntity.fromJson(
+          json['profile'] as Map<String, dynamic>,
+        ),
       );
     } on Exception catch (_) {
       return ProfileState();
@@ -192,9 +156,12 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
 
   @override
   Map<String, dynamic>? toJson(ProfileState state) {
-    return {
-      'status': state.status.index,
-      'profile': state.profile.toJson(),
-    };
+    return {'status': state.status.index, 'profile': state.profile.toJson()};
+  }
+
+  @override
+  Future<void> close() {
+    _profileSubscription?.cancel();
+    return super.close();
   }
 }

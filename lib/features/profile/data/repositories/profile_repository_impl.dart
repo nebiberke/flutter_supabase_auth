@@ -8,56 +8,35 @@ import 'package:flutter_supabase_auth/features/profile/data/models/profile_model
 import 'package:flutter_supabase_auth/features/profile/domain/entities/profile_entity.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/repositories/profile_repository.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileRepositoryImpl implements ProfileRepository {
   ProfileRepositoryImpl({
     required ProfileRemoteDataSource remoteDataSource,
     required NetworkInfo networkInfo,
-  })  : _remoteDataSource = remoteDataSource,
-        _networkInfo = networkInfo;
+  }) : _remoteDataSource = remoteDataSource,
+       _networkInfo = networkInfo;
 
   final ProfileRemoteDataSource _remoteDataSource;
   final NetworkInfo _networkInfo;
 
   @override
-  Future<Either<Failure, Unit>> deleteProfile() async {
+  Future<Either<Failure, ProfileEntity>> getProfileWithId(String userId) async {
     if (await _networkInfo.isConnected) {
       try {
-        await _remoteDataSource.deleteProfile();
-        return const Right(unit);
-      } on AuthException catch (e) {
-        LoggerUtils().logError(
-          'AuthException on deleteProfile: ${e.message} (Code: ${e.code})',
-        );
-        return Left(AuthFailure.fromCode(e.code));
-      } on NullResponseException catch (_) {
-        return const Left(NullResponseFailure());
-      } on Exception catch (e, stackTrace) {
-        LoggerUtils().logFatalError('Exception on deleteProfile', stackTrace);
-        return const Left(UnknownFailure());
-      }
-    } else {
-      return const Left(NoInternetFailure());
-    }
-  }
-
-  @override
-  Future<Either<Failure, ProfileEntity>> getCurrentProfile() async {
-    if (await _networkInfo.isConnected) {
-      try {
-        final profileModel = await _remoteDataSource.getCurrentProfile();
+        final profileModel = await _remoteDataSource.getProfileWithId(userId);
         return Right(profileModel.toEntity());
-      } on AuthException catch (e) {
+      } on PostgrestException catch (e) {
         LoggerUtils().logError(
-          'AuthException on getCurrentProfile: ${e.message} (Code: ${e.code})',
+          'PostgrestException on getProfileWithId: ${e.message} (Code: ${e.code})',
         );
-        return Left(AuthFailure.fromCode(e.code));
-      } on NullResponseException catch (_) {
-        return const Left(NullResponseFailure());
+        return const Left(DatabaseFailure());
       } on Exception catch (e, stackTrace) {
-        LoggerUtils()
-            .logFatalError('Exception on getCurrentProfile', stackTrace);
+        LoggerUtils().logFatalError(
+          'Exception on getProfileWithId',
+          stackTrace,
+        );
         return const Left(UnknownFailure());
       }
     } else {
@@ -66,33 +45,10 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<Either<Failure, ProfileEntity>> getProfileWithId(String id) async {
+  Future<Either<Failure, Unit>> updateProfile(ProfileEntity newProfile) async {
     if (await _networkInfo.isConnected) {
       try {
-        final profileModel = await _remoteDataSource.getProfileWithId(id);
-        return Right(profileModel.toEntity());
-      } on AuthException catch (e) {
-        LoggerUtils().logError(
-          'AuthException on getProfileWithId: ${e.message} (Code: ${e.code})',
-        );
-        return Left(AuthFailure.fromCode(e.code));
-      } on NullResponseException catch (_) {
-        return const Left(NullResponseFailure());
-      } on Exception catch (e, stackTrace) {
-        LoggerUtils()
-            .logFatalError('Exception on getProfileWithId', stackTrace);
-        return const Left(UnknownFailure());
-      }
-    } else {
-      return const Left(NoInternetFailure());
-    }
-  }
-
-  @override
-  Future<Either<Failure, Unit>> updateProfile(ProfileEntity profile) async {
-    if (await _networkInfo.isConnected) {
-      try {
-        final updatedProfile = ProfileModel.fromEntity(profile);
+        final updatedProfile = ProfileModel.fromEntity(newProfile);
         await _remoteDataSource.updateProfile(updatedProfile);
         return const Right(unit);
       } on AuthException catch (e) {
@@ -102,6 +58,11 @@ class ProfileRepositoryImpl implements ProfileRepository {
         return Left(AuthFailure.fromCode(e.code));
       } on NullResponseException catch (_) {
         return const Left(NullResponseFailure());
+      } on PostgrestException catch (e) {
+        LoggerUtils().logError(
+          'PostgrestException on updateProfile: ${e.message} (Code: ${e.code})',
+        );
+        return const Left(DatabaseFailure());
       } on Exception catch (e, stackTrace) {
         LoggerUtils().logFatalError('Exception on updateProfile', stackTrace);
         return const Left(UnknownFailure());
@@ -112,49 +73,71 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Stream<Either<Failure, ProfileEntity?>> get profileStateChanges async* {
-    if (await _networkInfo.isConnected) {
-      try {
-        await for (final profileModel
-            in _remoteDataSource.profileStateChanges) {
-          yield Right(profileModel?.toEntity());
-        }
-      } on AuthException catch (e) {
-        LoggerUtils().logError(
-          'AuthException on profileStateChanges: ${e.message} (Code: ${e.statusCode})',
+  Stream<Either<Failure, ProfileEntity?>> watchProfileState(String userId) {
+    final remoteStream = _remoteDataSource
+        .watchProfileState(userId)
+        .map((model) => Right<Failure, ProfileEntity?>(model?.toEntity()))
+        .handleError((Object error, StackTrace stackTrace) {
+          if (error is PostgrestException) {
+            return const Left<Failure, ProfileEntity?>(DatabaseFailure());
+          }
+          LoggerUtils().logFatalError('Unhandled stream error', stackTrace);
+          return const Left<Failure, ProfileEntity?>(UnknownFailure());
+        });
+
+    return _networkInfo.onConnectivityChanged.switchMap((bool connected) {
+      if (connected) {
+        return remoteStream;
+      } else {
+        return Stream.value(
+          const Left<Failure, ProfileEntity?>(NoInternetFailure()),
         );
-        yield Left(AuthFailure.fromCode(e.code));
-      } on Exception catch (e, stackTrace) {
-        LoggerUtils()
-            .logFatalError('Exception on profileStateChanges', stackTrace);
-        yield const Left(UnknownFailure());
       }
-    } else {
-      yield const Left(NoInternetFailure());
-    }
+    });
   }
 
   @override
-  Future<Either<Failure, String>> uploadProfilePhoto(XFile imageFile) async {
+  Future<Either<Failure, String>> uploadProfilePhoto(
+    XFile imageFile,
+    String userId,
+  ) async {
     if (await _networkInfo.isConnected) {
       try {
-        final imageUrl = await _remoteDataSource.uploadProfilePhoto(imageFile);
-        return Right(imageUrl);
-      } on AuthException catch (e) {
-        LoggerUtils().logError(
-          'AuthException on uploadProfilePhoto: ${e.message} (Code: ${e.code})',
+        final imageUrl = await _remoteDataSource.uploadProfilePhoto(
+          imageFile,
+          userId,
         );
-        return Left(AuthFailure.fromCode(e.code));
+        return Right(imageUrl);
       } on StorageException catch (e) {
         LoggerUtils().logError(
           'StorageException on uploadProfilePhoto: ${e.message}',
         );
         return const Left(DatabaseFailure());
-      } on DatabaseException catch (_) {
+      } on Exception catch (e, stackTrace) {
+        LoggerUtils().logFatalError(
+          'Exception on uploadProfilePhoto',
+          stackTrace,
+        );
+        return const Left(UnknownFailure());
+      }
+    } else {
+      return const Left(NoInternetFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<ProfileEntity>>> getAllProfiles() async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final profiles = await _remoteDataSource.getAllProfiles();
+        return Right(profiles.map((e) => e.toEntity()).toList());
+      } on PostgrestException catch (e) {
+        LoggerUtils().logError(
+          'PostgrestException on getAllProfiles: ${e.message} (Code: ${e.code})',
+        );
         return const Left(DatabaseFailure());
       } on Exception catch (e, stackTrace) {
-        LoggerUtils()
-            .logFatalError('Exception on uploadProfilePhoto', stackTrace);
+        LoggerUtils().logFatalError('Exception on getAllProfiles', stackTrace);
         return const Left(UnknownFailure());
       }
     } else {

@@ -8,24 +8,24 @@ import 'package:image_picker/image_picker.dart';
 class UCUploadProfilePhoto
     implements UseCase<String, UploadProfilePhotoParams> {
   UCUploadProfilePhoto({required ProfileRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final ProfileRepository _repository;
 
   @override
   Future<Either<Failure, String>> call(UploadProfilePhotoParams params) {
-    return _repository.uploadProfilePhoto(
-      params.imageFile,
-    );
+    return _repository.uploadProfilePhoto(params.imageFile, params.userId);
   }
 }
 
 class UploadProfilePhotoParams extends Equatable {
   const UploadProfilePhotoParams({
     required this.imageFile,
+    required this.userId,
   });
   final XFile imageFile;
+  final String userId;
 
   @override
-  List<Object?> get props => [imageFile];
+  List<Object?> get props => [imageFile, userId];
 }

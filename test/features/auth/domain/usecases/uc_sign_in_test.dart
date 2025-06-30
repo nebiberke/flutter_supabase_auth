@@ -1,118 +1,130 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_supabase_auth/app/errors/failure.dart';
-import 'package:flutter_supabase_auth/features/auth/domain/entities/auth_entity.dart';
 import 'package:flutter_supabase_auth/features/auth/domain/repositories/auth_repository.dart';
 import 'package:flutter_supabase_auth/features/auth/domain/usecases/uc_sign_in.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+// Mock sınıfları
 class MockAuthRepository extends Mock implements AuthRepository {}
 
+class MockUser extends Mock implements User {}
+
 void main() {
-  late UCSignIn usecase;
+  late UCSignIn useCase;
   late MockAuthRepository mockRepository;
+  late MockUser mockUser;
 
   setUp(() {
     mockRepository = MockAuthRepository();
-    usecase = UCSignIn(repository: mockRepository);
+    mockUser = MockUser();
+    useCase = UCSignIn(repository: mockRepository);
   });
 
-  const tEmail = 'test@example.com';
-  const tPassword = 'password123';
+  group('UCSignIn', () {
+    const tEmail = 'test@example.com';
+    const tPassword = 'testPassword123';
+    const tParams = SignInParams(email: tEmail, password: tPassword);
 
-  const tAuthEntity = AuthEntity(
-    userId: 'test_id',
-    accessToken: 'test_token',
-    isTokenExpired: false,
-    providers: ['email'],
-  );
+    test(
+      "repository'den başarılı sonuç alınca Right(User) döndürmeli",
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.signIn(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+          ),
+        ).thenAnswer((_) async => Right(mockUser));
 
-  const tParams = SignInParams(
-    email: tEmail,
-    password: tPassword,
-  );
+        // Act
+        final result = await useCase(tParams);
 
-  test(
-    'should sign in through the repository',
-    () async {
-      // arrange
+        // Assert
+        expect(result, equals(Right<Failure, User>(mockUser)));
+        verify(
+          () => mockRepository.signIn(email: tEmail, password: tPassword),
+        ).called(1);
+        verifyNoMoreInteractions(mockRepository);
+      },
+    );
+
+    test('repository hata döndürünce Left(Failure) döndürmeli', () async {
+      // Arrange
+      const tFailure = AuthFailure('Invalid credentials');
       when(
         () => mockRepository.signIn(
           email: any(named: 'email'),
           password: any(named: 'password'),
         ),
-      ).thenAnswer((_) async => const Right(tAuthEntity));
+      ).thenAnswer((_) async => const Left(tFailure));
 
-      // act
-      final result = await usecase(tParams);
+      // Act
+      final result = await useCase(tParams);
 
-      // assert
-      expect(result, equals(const Right<Failure, AuthEntity>(tAuthEntity)));
+      // Assert
+      expect(result, equals(const Left<AuthFailure, User>(tFailure)));
       verify(
-        () => mockRepository.signIn(
-          email: tEmail,
-          password: tPassword,
-        ),
-      );
+        () => mockRepository.signIn(email: tEmail, password: tPassword),
+      ).called(1);
       verifyNoMoreInteractions(mockRepository);
-    },
-  );
+    });
 
-  test(
-    'should return NoInternetFailure when there is no internet connection',
-    () async {
-      // arrange
-      when(
-        () => mockRepository.signIn(
-          email: any(named: 'email'),
-          password: any(named: 'password'),
-        ),
-      ).thenAnswer((_) async => const Left(NoInternetFailure()));
+    test(
+      "doğru email ve password parametreleriyle repository'yi çağırmalı",
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.signIn(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+          ),
+        ).thenAnswer((_) async => Right(mockUser));
 
-      // act
-      final result = await usecase(tParams);
+        // Act
+        await useCase(tParams);
 
-      // assert
-      expect(
-        result,
-        equals(const Left<Failure, AuthEntity>(NoInternetFailure())),
+        // Assert
+        verify(
+          () => mockRepository.signIn(email: tEmail, password: tPassword),
+        ).called(1);
+      },
+    );
+
+    test('SignInParams eşitlik karşılaştırmasını doğru yapmalı', () {
+      // Arrange
+      const params1 = SignInParams(email: 'test@example.com', password: 'pass');
+      const params2 = SignInParams(email: 'test@example.com', password: 'pass');
+      const params3 = SignInParams(
+        email: 'different@example.com',
+        password: 'pass',
       );
-      verify(
-        () => mockRepository.signIn(
-          email: tEmail,
-          password: tPassword,
-        ),
-      );
-      verifyNoMoreInteractions(mockRepository);
-    },
-  );
 
-  test(
-    'should return AuthFailure when authentication fails',
-    () async {
-      // arrange
-      when(
-        () => mockRepository.signIn(
-          email: any(named: 'email'),
-          password: any(named: 'password'),
-        ),
-      ).thenAnswer((_) async => const Left(AuthFailure()));
+      // Assert
+      expect(params1, equals(params2));
+      expect(params1, isNot(equals(params3)));
+      expect(params1.props, equals(['test@example.com', 'pass']));
+    });
 
-      // act
-      final result = await usecase(tParams);
+    test(
+      'internet connection failure durumunda Left(NoInternetFailure) döndürmeli',
+      () async {
+        // Arrange
+        const tFailure = NoInternetFailure();
+        when(
+          () => mockRepository.signIn(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+          ),
+        ).thenAnswer((_) async => const Left(tFailure));
 
-      // assert
-      expect(
-        result,
-        equals(const Left<Failure, AuthEntity>(AuthFailure())),
-      );
-      verify(
-        () => mockRepository.signIn(
-          email: tEmail,
-          password: tPassword,
-        ),
-      );
-      verifyNoMoreInteractions(mockRepository);
-    },
-  );
+        // Act
+        final result = await useCase(tParams);
+
+        // Assert
+        expect(result, equals(const Left<NoInternetFailure, User>(tFailure)));
+      },
+    );
+  });
 }

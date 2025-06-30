@@ -10,14 +10,16 @@ class ProfileEntity extends Equatable {
     required this.email,
     required this.fullName,
     required this.avatarUrl,
+    required this.username,
   });
 
   factory ProfileEntity.empty() => const ProfileEntity(
-        id: '',
-        email: '',
-        fullName: '',
-        avatarUrl: '',
-      );
+    id: '',
+    email: '',
+    fullName: '',
+    avatarUrl: '',
+    username: '',
+  );
 
   factory ProfileEntity.fromJson(Map<String, dynamic> json) =>
       _$ProfileEntityFromJson(json);
@@ -29,12 +31,14 @@ class ProfileEntity extends Equatable {
     String? email,
     String? fullName,
     String? avatarUrl,
+    String? username,
   }) {
     return ProfileEntity(
       id: id ?? this.id,
       email: email ?? this.email,
       fullName: fullName ?? this.fullName,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      username: username ?? this.username,
     );
   }
 
@@ -42,7 +46,8 @@ class ProfileEntity extends Equatable {
   final String email;
   final String fullName;
   final String avatarUrl;
+  final String username;
 
   @override
-  List<Object?> get props => [id, email, fullName, avatarUrl];
+  List<Object?> get props => [id, email, fullName, avatarUrl, username];
 }

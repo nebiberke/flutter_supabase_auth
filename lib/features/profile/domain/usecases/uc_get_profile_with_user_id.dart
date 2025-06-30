@@ -8,20 +8,20 @@ import 'package:flutter_supabase_auth/features/profile/domain/repositories/profi
 class UCGetProfileWithId
     implements UseCase<ProfileEntity, GetProfileWithIdParams> {
   UCGetProfileWithId({required ProfileRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final ProfileRepository _repository;
 
   @override
   Future<Either<Failure, ProfileEntity>> call(GetProfileWithIdParams params) {
-    return _repository.getProfileWithId(params.id);
+    return _repository.getProfileWithId(params.userId);
   }
 }
 
 class GetProfileWithIdParams extends Equatable {
-  const GetProfileWithIdParams({required this.id});
-  final String id;
+  const GetProfileWithIdParams({required this.userId});
+  final String userId;
 
   @override
-  List<Object> get props => [id];
+  List<Object?> get props => [userId];
 }

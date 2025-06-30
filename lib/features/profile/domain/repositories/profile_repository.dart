@@ -4,10 +4,12 @@ import 'package:flutter_supabase_auth/features/profile/domain/entities/profile_e
 import 'package:image_picker/image_picker.dart';
 
 abstract class ProfileRepository {
-  Future<Either<Failure, ProfileEntity>> getCurrentProfile();
-  Future<Either<Failure, ProfileEntity>> getProfileWithId(String id);
-  Future<Either<Failure, Unit>> deleteProfile();
-  Future<Either<Failure, Unit>> updateProfile(ProfileEntity profile);
-  Future<Either<Failure, String>> uploadProfilePhoto(XFile imageFile);
-  Stream<Either<Failure, ProfileEntity?>> get profileStateChanges;
+  Future<Either<Failure, ProfileEntity>> getProfileWithId(String userId);
+  Future<Either<Failure, Unit>> updateProfile(ProfileEntity newProfile);
+  Future<Either<Failure, String>> uploadProfilePhoto(
+    XFile imageFile,
+    String userId,
+  );
+  Stream<Either<Failure, ProfileEntity?>> watchProfileState(String userId);
+  Future<Either<Failure, List<ProfileEntity>>> getAllProfiles();
 }

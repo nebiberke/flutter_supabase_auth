@@ -8,7 +8,12 @@ import 'package:flutter_supabase_auth/app/router/app_router.dart';
 import 'package:flutter_supabase_auth/app/theme/cubit/theme_cubit.dart';
 import 'package:flutter_supabase_auth/app/theme/dark/app_dark_theme.dart';
 import 'package:flutter_supabase_auth/app/theme/light/app_light_theme.dart';
+import 'package:flutter_supabase_auth/core/enums/auth_status.dart';
+import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_event.dart';
+import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_state.dart'
+    show AuthState;
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile_event.dart';
 import 'package:flutter_supabase_auth/locator.dart';
 
@@ -38,33 +43,39 @@ class MyApp extends StatelessWidget {
         providers: [
           BlocProvider(
             lazy: false,
-            create: (context) => Locator.authBloc..add(AuthStateChangesEvent()),
+            create: (context) => Locator.authBloc..add(AuthStartedEvent()),
           ),
-          BlocProvider(
-            lazy: false,
-            create: (context) =>
-                Locator.profileBloc..add(ProfileStateChangesEvent()),
-          ),
-          BlocProvider(
-            create: (context) => ThemeCubit(),
-          ),
+          BlocProvider(create: (context) => Locator.profileBloc),
+          BlocProvider(create: (context) => Locator.themeCubit),
+          BlocProvider(create: (context) => Locator.usersBloc),
         ],
-        child: BlocBuilder<ThemeCubit, ThemeState>(
-          builder: (context, themeState) {
-            return MaterialApp.router(
-              title: 'DomainGo',
-              debugShowCheckedModeBanner: false,
-              routerConfig: AppRouter.router,
-              // Localization
-              localizationsDelegates: context.localizationDelegates,
-              supportedLocales: context.supportedLocales,
-              locale: context.locale,
-              // Theme
-              theme: AppLightTheme().themeData,
-              darkTheme: AppDarkTheme().themeData,
-              themeMode: themeState.themeMode,
-            );
+        child: BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state.status == AuthStatus.authenticated) {
+              context.read<ProfileBloc>().add(
+                GetProfileWithIdEvent(userId: state.user!.id),
+              );
+            } else if (state.status == AuthStatus.unauthenticated) {
+              context.read<ProfileBloc>().add(const SignOutProfileEvent());
+            }
           },
+          child: BlocBuilder<ThemeCubit, ThemeState>(
+            builder: (context, themeState) {
+              return MaterialApp.router(
+                title: 'Flutter Supabase Auth',
+                debugShowCheckedModeBanner: false,
+                routerConfig: AppRouter.router,
+                // Localization
+                localizationsDelegates: context.localizationDelegates,
+                supportedLocales: context.supportedLocales,
+                locale: context.locale,
+                // Theme
+                theme: AppLightTheme().themeData,
+                darkTheme: AppDarkTheme().themeData,
+                themeMode: themeState.themeMode,
+              );
+            },
+          ),
         ),
       ),
     );

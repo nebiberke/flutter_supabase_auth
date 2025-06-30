@@ -5,6 +5,7 @@ import 'package:flutter_supabase_auth/features/auth/domain/repositories/auth_rep
 
 class UCSignOut implements UseCase<Unit, NoParams> {
   UCSignOut({required AuthRepository repository}) : _repository = repository;
+
   final AuthRepository _repository;
 
   @override

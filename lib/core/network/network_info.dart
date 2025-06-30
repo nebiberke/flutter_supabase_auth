@@ -6,6 +6,9 @@ abstract interface class NetworkInfo {
   /// Returns `true` if the device is actually connected to the internet,
   /// otherwise `false`.
   Future<bool> get isConnected;
+
+  /// Returns a stream that emits the current internet connectivity status.
+  Stream<bool> get onConnectivityChanged;
 }
 
 /// Implementation of [NetworkInfo] that uses
@@ -20,4 +23,9 @@ final class NetworkInfoImpl implements NetworkInfo {
 
   @override
   Future<bool> get isConnected => connectionChecker.hasInternetAccess;
+
+  /// Returns a stream that emits the current internet connectivity status.
+  @override
+  Stream<bool> get onConnectivityChanged => connectionChecker.onStatusChange
+      .map((status) => status == InternetStatus.connected);
 }
