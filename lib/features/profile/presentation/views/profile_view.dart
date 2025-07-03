@@ -11,9 +11,9 @@ import 'package:flutter_supabase_auth/app/widgets/overlay/loading_overlay.dart';
 import 'package:flutter_supabase_auth/app/widgets/text_field/custom_text_field.dart';
 import 'package:flutter_supabase_auth/core/enums/bloc_status.dart';
 import 'package:flutter_supabase_auth/core/extensions/context_extension.dart';
-import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile_state.dart';
-import 'package:flutter_supabase_auth/features/profile/presentation/views/profile_view_mixin.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile/profile_bloc.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile/profile_state.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/views/mixins/profile_view_mixin.dart';
 
 part '../widgets/email_text_field.dart';
 part '../widgets/full_name_text_field.dart';
@@ -47,7 +47,7 @@ class _ProfileViewState extends State<ProfileView> with ProfileViewMixin {
               ),
               body: SafeArea(
                 child: Padding(
-                  padding: PaddingConstants.allHigh(),
+                  padding: PaddingConstants.allHigh,
                   child: SingleChildScrollView(
                     child: Column(
                       children: [

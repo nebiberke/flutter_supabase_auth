@@ -8,8 +8,8 @@ import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_get_pr
 import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_update_profile.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_upload_profile_photo.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_watch_profile_state.dart';
-import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile_event.dart';
-import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile_state.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile/profile_event.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile/profile_state.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 
 class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
@@ -22,7 +22,7 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
        _updateProfile = updateProfile,
        _watchProfileState = watchProfileState,
        _uploadProfilePhoto = uploadProfilePhoto,
-       super(ProfileState()) {
+       super(const ProfileState()) {
     on<GetProfileWithIdEvent>(_ongetProfileWithId);
     on<WatchProfileStateEvent>(_onWatchProfileState);
     on<UpdateProfileEvent>(_onUpdateProfile);
@@ -41,7 +41,7 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
     Emitter<ProfileState> emit,
   ) async {
     await _profileSubscription?.cancel();
-    emit(ProfileState());
+    emit(const ProfileState());
   }
 
   Future<void> _onWatchProfileState(
@@ -71,7 +71,12 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
     if (event.failure != null) {
       emit(state.copyWith(status: BlocStatus.error, failure: event.failure));
     } else {
-      emit(state.copyWith(status: BlocStatus.loaded, profile: event.profile));
+      emit(
+        ProfileState(
+          status: BlocStatus.loaded,
+          profile: event.profile ?? ProfileEntity.empty,
+        ),
+      );
     }
   }
 
@@ -89,7 +94,7 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
       (failure) =>
           emit(state.copyWith(status: BlocStatus.error, failure: failure)),
       (profile) {
-        emit(state.copyWith(status: BlocStatus.loaded, profile: profile));
+        emit(ProfileState(status: BlocStatus.loaded, profile: profile));
         add(WatchProfileStateEvent(userId: event.userId));
       },
     );
@@ -101,7 +106,7 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
   ) async {
     emit(state.copyWith(status: BlocStatus.loading));
 
-    String? avatarUrl = event.profile.avatarUrl;
+    var avatarUrl = event.profile.avatarUrl;
 
     if (event.imageFile != null) {
       final failureOrUrl = await _uploadProfilePhoto(
@@ -134,7 +139,7 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
           emit(state.copyWith(status: BlocStatus.error, failure: failure)),
       (_) {
         return emit(
-          state.copyWith(status: BlocStatus.loaded, profile: updatedProfile),
+          ProfileState(status: BlocStatus.loaded, profile: updatedProfile),
         );
       },
     );
@@ -150,7 +155,7 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
         ),
       );
     } on Exception catch (_) {
-      return ProfileState();
+      return const ProfileState();
     }
   }
 

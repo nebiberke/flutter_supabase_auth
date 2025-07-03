@@ -8,7 +8,6 @@ import 'package:flutter_supabase_auth/features/auth/domain/usecases/uc_sign_in.d
 import 'package:flutter_supabase_auth/features/auth/domain/usecases/uc_sign_out.dart';
 import 'package:flutter_supabase_auth/features/auth/domain/usecases/uc_sign_up.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:flutter_supabase_auth/features/home/presentation/bloc/users_bloc.dart';
 import 'package:flutter_supabase_auth/features/profile/data/datasources/remote/profile_remote_data_source.dart';
 import 'package:flutter_supabase_auth/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/repositories/profile_repository.dart';
@@ -17,7 +16,9 @@ import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_get_pr
 import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_update_profile.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_upload_profile_photo.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_watch_profile_state.dart';
-import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/all_profiles/all_profiles_bloc.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile/profile_bloc.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -32,8 +33,11 @@ final class Locator {
   /// Returns instance of [ProfileBloc]
   static ProfileBloc get profileBloc => _instance<ProfileBloc>();
 
-  /// Returns instance of [UsersBloc]
-  static UsersBloc get usersBloc => _instance<UsersBloc>();
+  /// Returns instance of [AllProfilesBloc]
+  static AllProfilesBloc get allProfilesBloc => _instance<AllProfilesBloc>();
+
+  /// Returns instance of [UserProfileBloc]
+  static UserProfileBloc get userProfileBloc => _instance<UserProfileBloc>();
 
   /// Returns instance of [ThemeCubit]
   static ThemeCubit get themeCubit => _instance<ThemeCubit>();
@@ -114,7 +118,10 @@ final class Locator {
       )
       // UCGetAllProfiles
       ..registerFactory(
-        () => UCGetAllProfiles(repository: _instance<ProfileRepository>()),
+        () => UCGetAllProfiles(
+          repository: _instance<ProfileRepository>(),
+          authRepository: _instance<AuthRepository>(),
+        ),
       )
       // ProfileBloc
       ..registerLazySingleton(
@@ -125,12 +132,14 @@ final class Locator {
           uploadProfilePhoto: _instance<UCUploadProfilePhoto>(),
         ),
       )
-      // UsersBloc
+      // AllProfilesBloc
       ..registerLazySingleton(
-        () => UsersBloc(
-          getAllProfiles: _instance<UCGetAllProfiles>(),
-          getProfileWithId: _instance<UCGetProfileWithId>(),
-        ),
+        () => AllProfilesBloc(getAllProfiles: _instance<UCGetAllProfiles>()),
+      )
+      // UserProfileBloc
+      ..registerLazySingleton(
+        () =>
+            UserProfileBloc(getProfileWithId: _instance<UCGetProfileWithId>()),
       )
       /// [Core]
       // NetworkInfo

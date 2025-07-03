@@ -42,6 +42,7 @@
       "welcome": "Welcome, {}",
       "users": "Users",
       "no_users": "No users found",
+      "refresh": "Refresh",
       "tabs": {
         "dashboard": "Home",
         "profile": "Profile"

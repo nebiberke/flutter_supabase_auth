@@ -51,7 +51,6 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
           (rows) => rows.isNotEmpty ? ProfileModel.fromJson(rows.first) : null,
         )
         .handleError((Object error, StackTrace stackTrace) {
-          LoggerUtils().logError('Stream error: $error');
           if (error is PostgrestException) {
             throw PostgrestException(message: error.message, code: error.code);
           } else if (error is RealtimeSubscribeException) {

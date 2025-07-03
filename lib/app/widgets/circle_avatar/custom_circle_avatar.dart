@@ -29,7 +29,7 @@ class CustomCircleAvatar extends StatelessWidget {
   }
 
   Widget _buildAvatarContent(BuildContext context) {
-    // Eğer avatarUrl varsa ve boş değilse CachedNetworkImage göster
+    /// If avatarUrl is not null and not empty, show CachedNetworkImage.
     if (avatarUrl != null && avatarUrl!.isNotEmpty) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(radius),
@@ -52,7 +52,7 @@ class CustomCircleAvatar extends StatelessWidget {
       );
     }
 
-    // Eğer fallbackText varsa onu göster
+    /// If fallbackText is not null and not empty, show Text.
     if (fallbackText != null && fallbackText!.isNotEmpty) {
       return Text(
         fallbackText![0].toUpperCase(),
@@ -64,7 +64,7 @@ class CustomCircleAvatar extends StatelessWidget {
       );
     }
 
-    // Son olarak fallback icon göster
+    /// If fallbackText is null or empty, show fallback icon.
     return Icon(fallbackIcon, size: radius * 0.8, color: Colors.grey.shade600);
   }
 }

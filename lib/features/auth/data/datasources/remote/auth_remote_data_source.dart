@@ -82,6 +82,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   User? getCurrentUser() {
-    return _supabase.auth.currentUser;
+    try {
+      return _supabase.auth.currentUser;
+    } on Exception catch (_) {
+      throw UnknownException();
+    }
   }
 }

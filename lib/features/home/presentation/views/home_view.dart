@@ -9,12 +9,12 @@ import 'package:flutter_supabase_auth/app/widgets/circle_avatar/custom_circle_av
 import 'package:flutter_supabase_auth/app/widgets/error/custom_error_widget.dart';
 import 'package:flutter_supabase_auth/core/enums/bloc_status.dart';
 import 'package:flutter_supabase_auth/core/extensions/context_extension.dart';
-import 'package:flutter_supabase_auth/features/home/presentation/bloc/users_bloc.dart';
-import 'package:flutter_supabase_auth/features/home/presentation/bloc/users_event.dart';
-import 'package:flutter_supabase_auth/features/home/presentation/bloc/users_state.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/entities/profile_entity.dart';
-import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile_state.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/all_profiles/all_profiles_bloc.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/all_profiles/all_profiles_event.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/all_profiles/all_profiles_state.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile/profile_bloc.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile/profile_state.dart';
 import 'package:go_router/go_router.dart';
 
 part '../widgets/users_list.dart';
@@ -28,32 +28,30 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   @override
+  void initState() {
+    super.initState();
+    context.read<AllProfilesBloc>().add(const GetAllProfilesEvent());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocListener<ProfileBloc, ProfileState>(
-      listener: (context, state) {
-        if (state.status == BlocStatus.loaded && state.profile.id.isNotEmpty) {
-          context.read<UsersBloc>().add(
-            GetAllProfilesEvent(currentUserId: state.profile.id),
-          );
-        }
-      },
-      child: Scaffold(
-        body: SafeArea(
-          child: Padding(
-            padding: PaddingConstants.allHigh(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const _WelcomeTitle(),
-                context.verticalSpacingVeryHigh2x,
-                Text(
-                  LocaleKeys.home_dashboard_description.tr(),
-                  style: context.textTheme.titleMedium,
-                ),
-                context.verticalSpacingVeryHigh2x,
-                const _UsersList(),
-              ],
-            ),
+    return Scaffold(
+      drawer: const Drawer(),
+      body: SafeArea(
+        child: Padding(
+          padding: PaddingConstants.allHigh,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _WelcomeTitle(),
+              context.verticalSpacingVeryHigh2x,
+              Text(
+                LocaleKeys.home_dashboard_description.tr(),
+                style: context.textTheme.titleMedium,
+              ),
+              context.verticalSpacingVeryHigh2x,
+              const _UsersList(),
+            ],
           ),
         ),
       ),

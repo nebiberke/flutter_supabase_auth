@@ -35,13 +35,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     final result = await _getCurrentUser(NoParams());
-    result.fold((failure) => emit(AuthState.unauthenticated()), (user) {
-      if (user != null) {
-        emit(state.copyWith(status: AuthStatus.authenticated, user: user));
-      } else {
-        emit(AuthState.unauthenticated());
-      }
-    });
+    result.fold(
+      (failure) =>
+          emit(state.copyWith(status: AuthStatus.error, failure: failure)),
+      (user) {
+        if (user != null) {
+          emit(AuthState(status: AuthStatus.authenticated, user: user));
+        } else {
+          emit(const AuthState(status: AuthStatus.unauthenticated));
+        }
+      },
+    );
   }
 
   Future<void> _onSignInEvent(
@@ -57,8 +61,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     result.fold(
       (failure) =>
           emit(state.copyWith(status: AuthStatus.error, failure: failure)),
-      (user) =>
-          emit(state.copyWith(status: AuthStatus.authenticated, user: user)),
+      (user) => emit(AuthState(status: AuthStatus.authenticated, user: user)),
     );
   }
 
@@ -80,8 +83,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     result.fold(
       (failure) =>
           emit(state.copyWith(status: AuthStatus.error, failure: failure)),
-      (user) =>
-          emit(state.copyWith(status: AuthStatus.authenticated, user: user)),
+      (user) => emit(AuthState(status: AuthStatus.authenticated, user: user)),
     );
   }
 
@@ -96,7 +98,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     result.fold(
       (failure) =>
           emit(state.copyWith(status: AuthStatus.error, failure: failure)),
-      (_) => emit(AuthState.unauthenticated()),
+      (_) => emit(const AuthState(status: AuthStatus.unauthenticated)),
     );
   }
 }

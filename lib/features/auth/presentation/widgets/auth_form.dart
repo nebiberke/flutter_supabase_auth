@@ -10,8 +10,8 @@ import 'package:flutter_supabase_auth/core/enums/auth_status.dart';
 import 'package:flutter_supabase_auth/core/extensions/context_extension.dart';
 import 'package:flutter_supabase_auth/core/utils/custom_validator.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_event.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_state.dart';
+import 'package:flutter_supabase_auth/features/auth/presentation/views/mixins/auth_form_mixin.dart';
 
 class AuthForm extends StatefulWidget {
   const AuthForm({
@@ -26,50 +26,13 @@ class AuthForm extends StatefulWidget {
   State<AuthForm> createState() => _AuthFormState();
 }
 
-class _AuthFormState extends State<AuthForm> {
-  final _formKey = GlobalKey<FormState>();
-  // TODO : Remove the default values
-  final _emailController = TextEditingController(text: 'deneme@gmail.com');
-  final _passwordController = TextEditingController(text: '123123Aa!');
-  final _fullNameController = TextEditingController(text: 'Deneme Deneme');
-  final _usernameController = TextEditingController(text: 'deneme');
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _fullNameController.dispose();
-    _usernameController.dispose();
-    super.dispose();
-  }
-
-  void _onAuthTap() {
-    if (_formKey.currentState?.validate() ?? false) {
-      if (widget.isSignUp) {
-        context.read<AuthBloc>().add(
-          SignUpEvent(
-            email: _emailController.text,
-            password: _passwordController.text,
-            fullName: _fullNameController.text,
-            username: _usernameController.text,
-          ),
-        );
-      } else {
-        context.read<AuthBloc>().add(
-          SignInEvent(
-            email: _emailController.text,
-            password: _passwordController.text,
-          ),
-        );
-      }
-    }
-  }
-
+class _AuthFormState extends State<AuthForm> with AuthFormMixin {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: PaddingConstants.allHigh(),
+      padding: PaddingConstants.allHigh,
       child: Form(
-        key: _formKey,
+        key: formKey,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -83,12 +46,12 @@ class _AuthFormState extends State<AuthForm> {
             if (widget.isSignUp) ...[
               CustomTextField(
                 label: LocaleKeys.auth_fields_full_name.tr(),
-                controller: _fullNameController,
+                controller: fullNameController,
                 validator: CustomValidator.fullNameValidator,
               ),
               CustomTextField(
                 label: LocaleKeys.auth_fields_username.tr(),
-                controller: _usernameController,
+                controller: usernameController,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return LocaleKeys.auth_validation_email_required.tr();
@@ -99,13 +62,13 @@ class _AuthFormState extends State<AuthForm> {
             ],
             CustomTextField(
               label: LocaleKeys.auth_fields_email.tr(),
-              controller: _emailController,
+              controller: emailController,
               keyboardType: TextInputType.emailAddress,
               validator: CustomValidator.emailValidator,
             ),
             CustomTextField(
               label: LocaleKeys.auth_fields_password.tr(),
-              controller: _passwordController,
+              controller: passwordController,
               obscureText: true,
               validator: CustomValidator.passwordValidator,
             ),
@@ -116,7 +79,7 @@ class _AuthFormState extends State<AuthForm> {
                   text: widget.isSignUp
                       ? LocaleKeys.auth_actions_sign_up.tr()
                       : LocaleKeys.auth_actions_sign_in.tr(),
-                  onPressed: _onAuthTap,
+                  onPressed: onAuthTap,
                   showingLoadingIndicator: state.status == AuthStatus.loading,
                 );
               },

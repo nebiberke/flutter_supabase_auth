@@ -50,6 +50,8 @@ final class AuthFailure extends Failure {
   ///
   /// The returned message should be localized using `.tr()`.
   factory AuthFailure.fromCode(String? code, {String? message}) {
+    /// OTP rate limit error message format: "You have reached the maximum number of attempts. Please try again in 3 seconds."
+    /// This regex extracts the number of seconds from the message.
     final seconds =
         RegExp(r'(\d+) seconds?\.').firstMatch(message ?? '')?.group(1) ?? '3';
     switch (code) {

@@ -42,6 +42,7 @@
       "welcome": "Hoş geldin, {}",
       "users": "Kullanıcılar",
       "no_users": "Sizden başka kullanıcı yok",
+      "refresh": "Yenile",
       "tabs": {
         "dashboard": "Ana Sayfa",
         "profile": "Profil"

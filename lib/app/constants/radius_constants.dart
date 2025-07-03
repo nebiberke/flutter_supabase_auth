@@ -20,7 +20,19 @@ final class BorderRadiusConstants extends BorderRadius {
   /// [BorderRadius] value 24
   BorderRadiusConstants.allExtraHigh() : super.all(RadiusConstants.extraHigh());
 
-  /// [BorderRadius] value 120 for stadium shape
+  /// [BorderRadius] value 48
+  BorderRadiusConstants.allExtraHigh2x()
+    : super.all(RadiusConstants.extraHigh2x());
+
+  /// [BorderRadius] value 72
+  BorderRadiusConstants.allExtraHigh3x()
+    : super.all(RadiusConstants.extraHigh3x());
+
+  /// [BorderRadius] value 96
+  BorderRadiusConstants.allExtraHigh4x()
+    : super.all(RadiusConstants.extraHigh4x());
+
+  /// [BorderRadius] value 120
   BorderRadiusConstants.allExtraHigh5x()
     : super.all(RadiusConstants.extraHigh5x());
 }

@@ -5,7 +5,7 @@ part 'profile_model.freezed.dart';
 part 'profile_model.g.dart';
 
 @freezed
-class ProfileModel with _$ProfileModel {
+abstract class ProfileModel with _$ProfileModel {
   const factory ProfileModel({
     required String id,
     String? email,
@@ -16,26 +16,30 @@ class ProfileModel with _$ProfileModel {
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) =>
       _$ProfileModelFromJson(json);
+}
 
-  factory ProfileModel.fromEntity(ProfileEntity entity) {
-    return ProfileModel(
-      id: entity.id,
-      email: entity.email,
-      fullName: entity.fullName,
-      avatarUrl: entity.avatarUrl,
-      username: entity.username,
+/// Convert a [ProfileModel] to a [ProfileEntity].
+extension ProfileModelX on ProfileModel? {
+  ProfileEntity toEntity() {
+    return ProfileEntity(
+      id: this?.id ?? ProfileEntity.empty.id,
+      email: this?.email ?? ProfileEntity.empty.email,
+      fullName: this?.fullName ?? ProfileEntity.empty.fullName,
+      avatarUrl: this?.avatarUrl ?? ProfileEntity.empty.avatarUrl,
+      username: this?.username ?? ProfileEntity.empty.username,
     );
   }
 }
 
-extension ProfileModelX on ProfileModel? {
-  ProfileEntity toEntity() {
-    return ProfileEntity(
-      id: this?.id ?? ProfileEntity.empty().id,
-      email: this?.email ?? ProfileEntity.empty().email,
-      fullName: this?.fullName ?? ProfileEntity.empty().fullName,
-      avatarUrl: this?.avatarUrl ?? ProfileEntity.empty().avatarUrl,
-      username: this?.username ?? ProfileEntity.empty().username,
+/// Convert a [ProfileEntity] to a [ProfileModel].
+extension ProfileEntityX on ProfileEntity {
+  ProfileModel toModel() {
+    return ProfileModel(
+      id: id,
+      email: email,
+      fullName: fullName,
+      avatarUrl: avatarUrl,
+      username: username,
     );
   }
 }

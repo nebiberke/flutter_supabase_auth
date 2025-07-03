@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_supabase_auth/app/errors/failure.dart';
 import 'package:flutter_supabase_auth/core/usecases/usecase.dart';
+import 'package:flutter_supabase_auth/features/auth/domain/repositories/auth_repository.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/entities/profile_entity.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/repositories/profile_repository.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_get_all_profiles.dart';
@@ -10,13 +11,19 @@ import 'package:mocktail/mocktail.dart';
 // Mock sınıfları
 class MockProfileRepository extends Mock implements ProfileRepository {}
 
+class MockAuthRepository extends Mock implements AuthRepository {}
+
 void main() {
   late UCGetAllProfiles useCase;
   late MockProfileRepository mockRepository;
-
+  late MockAuthRepository mockAuthRepository;
   setUp(() {
     mockRepository = MockProfileRepository();
-    useCase = UCGetAllProfiles(repository: mockRepository);
+    mockAuthRepository = MockAuthRepository();
+    useCase = UCGetAllProfiles(
+      repository: mockRepository,
+      authRepository: mockAuthRepository,
+    );
   });
 
   group('UCGetAllProfiles', () {

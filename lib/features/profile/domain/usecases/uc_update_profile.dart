@@ -22,5 +22,5 @@ class UpdateProfileParams extends Equatable {
   final ProfileEntity profile;
 
   @override
-  List<Object?> get props => [profile];
+  List<Object> get props => [profile];
 }

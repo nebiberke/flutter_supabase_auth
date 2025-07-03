@@ -26,7 +26,9 @@ void main() {
   group('UCGetCurrentUser', () {
     test("repository'den user varsa Right(User) döndürmeli", () async {
       // Arrange
-      when(() => mockRepository.getCurrentUser()).thenReturn(mockUser);
+      when(
+        () => mockRepository.getCurrentUser(),
+      ).thenReturn(Future.value(Right(mockUser)));
 
       // Act
       final result = await useCase(NoParams());
@@ -39,7 +41,9 @@ void main() {
 
     test("repository'den user yoksa Right(null) döndürmeli", () async {
       // Arrange
-      when(() => mockRepository.getCurrentUser()).thenReturn(null);
+      when(
+        () => mockRepository.getCurrentUser(),
+      ).thenReturn(Future.value(const Left(UnknownFailure())));
 
       // Act
       final result = await useCase(NoParams());
@@ -52,7 +56,9 @@ void main() {
 
     test("repository'yi parametre olmadan çağırmalı", () async {
       // Arrange
-      when(() => mockRepository.getCurrentUser()).thenReturn(mockUser);
+      when(
+        () => mockRepository.getCurrentUser(),
+      ).thenReturn(Future.value(Right(mockUser)));
 
       // Act
       await useCase(NoParams());
@@ -63,7 +69,9 @@ void main() {
 
     test('NoParams kullanılırken doğru şekilde çalışmalı', () async {
       // Arrange
-      when(() => mockRepository.getCurrentUser()).thenReturn(mockUser);
+      when(
+        () => mockRepository.getCurrentUser(),
+      ).thenReturn(Future.value(Right(mockUser)));
 
       final params = NoParams();
 
@@ -77,7 +85,9 @@ void main() {
 
     test('multiple calls yapılabilmeli', () async {
       // Arrange
-      when(() => mockRepository.getCurrentUser()).thenReturn(mockUser);
+      when(
+        () => mockRepository.getCurrentUser(),
+      ).thenReturn(Future.value(Right(mockUser)));
 
       // Act
       final result1 = await useCase(NoParams());
@@ -93,12 +103,16 @@ void main() {
       'authenticated user ile null user arasında geçiş yapabilmeli',
       () async {
         // Arrange & Act & Assert - İlk çağrıda user var
-        when(() => mockRepository.getCurrentUser()).thenReturn(mockUser);
+        when(
+          () => mockRepository.getCurrentUser(),
+        ).thenReturn(Future.value(Right(mockUser)));
         final result1 = await useCase(NoParams());
         expect(result1, equals(Right<Failure, User?>(mockUser)));
 
         // Arrange & Act & Assert - İkinci çağrıda user yok
-        when(() => mockRepository.getCurrentUser()).thenReturn(null);
+        when(
+          () => mockRepository.getCurrentUser(),
+        ).thenReturn(Future.value(const Left(UnknownFailure())));
         final result2 = await useCase(NoParams());
         expect(result2, equals(const Right<Failure, User?>(null)));
 
@@ -108,14 +122,18 @@ void main() {
 
     test('user state değişikliklerini doğru şekilde handle etmeli', () async {
       // Arrange - İlk durum: kullanıcı yok
-      when(() => mockRepository.getCurrentUser()).thenReturn(null);
+      when(
+        () => mockRepository.getCurrentUser(),
+      ).thenReturn(Future.value(const Left(UnknownFailure())));
 
       // Act & Assert - Kullanıcı yok
       final result1 = await useCase(NoParams());
       expect(result1, equals(const Right<Failure, User?>(null)));
 
       // Arrange - İkinci durum: kullanıcı giriş yaptı
-      when(() => mockRepository.getCurrentUser()).thenReturn(mockUser);
+      when(
+        () => mockRepository.getCurrentUser(),
+      ).thenReturn(Future.value(Right(mockUser)));
 
       // Act & Assert - Kullanıcı var
       final result2 = await useCase(NoParams());

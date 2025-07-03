@@ -51,7 +51,7 @@ class _ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
           builder: (context, isEdited, _) {
             if (!isEdited) return const SizedBox.shrink();
             return Padding(
-              padding: PaddingConstants.horizontalLow(),
+              padding: PaddingConstants.horizontalLow,
               child: _SaveButtonIfEdited(onSave: onSave),
             );
           },

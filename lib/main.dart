@@ -13,8 +13,8 @@ import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_bloc.
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_event.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_state.dart'
     show AuthState;
-import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile_event.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile/profile_bloc.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile/profile_event.dart';
 import 'package:flutter_supabase_auth/locator.dart';
 
 Future<void> main() async {
@@ -47,7 +47,8 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(create: (context) => Locator.profileBloc),
           BlocProvider(create: (context) => Locator.themeCubit),
-          BlocProvider(create: (context) => Locator.usersBloc),
+          BlocProvider(create: (context) => Locator.allProfilesBloc),
+          BlocProvider(create: (context) => Locator.userProfileBloc),
         ],
         child: BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {

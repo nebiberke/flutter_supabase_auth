@@ -48,7 +48,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Future<Either<Failure, Unit>> updateProfile(ProfileEntity newProfile) async {
     if (await _networkInfo.isConnected) {
       try {
-        final updatedProfile = ProfileModel.fromEntity(newProfile);
+        final updatedProfile = newProfile.toModel();
         await _remoteDataSource.updateProfile(updatedProfile);
         return const Right(unit);
       } on AuthException catch (e) {
@@ -79,6 +79,14 @@ class ProfileRepositoryImpl implements ProfileRepository {
         .map((model) => Right<Failure, ProfileEntity?>(model?.toEntity()))
         .handleError((Object error, StackTrace stackTrace) {
           if (error is PostgrestException) {
+            LoggerUtils().logError(
+              'PostgrestException on watchProfileState: ${error.message} (Code: ${error.code})',
+            );
+            return const Left<Failure, ProfileEntity?>(DatabaseFailure());
+          } else if (error is RealtimeSubscribeException) {
+            LoggerUtils().logError(
+              'RealtimeSubscribeException on watchProfileState: ${error.status}',
+            );
             return const Left<Failure, ProfileEntity?>(DatabaseFailure());
           }
           LoggerUtils().logFatalError('Unhandled stream error', stackTrace);

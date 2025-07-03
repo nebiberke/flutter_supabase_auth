@@ -91,7 +91,13 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  User? getCurrentUser() {
-    return _remoteDataSource.getCurrentUser();
+  Future<Either<Failure, User?>> getCurrentUser() async {
+    try {
+      final user = _remoteDataSource.getCurrentUser();
+      return Right(user);
+    } on Exception catch (e, stackTrace) {
+      LoggerUtils().logFatalError('Exception on getCurrentUser', stackTrace);
+      return const Left(UnknownFailure());
+    }
   }
 }
