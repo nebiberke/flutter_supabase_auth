@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:flutter_supabase_auth/app/errors/exceptions.dart';
 import 'package:flutter_supabase_auth/app/errors/failure.dart';
 import 'package:flutter_supabase_auth/core/network/network_info.dart';
 import 'package:flutter_supabase_auth/features/profile/data/datasources/remote/profile_remote_data_source.dart';
@@ -208,28 +207,6 @@ void main() {
           result.fold(
             (failure) => expect(failure, isA<AuthFailure>()),
             (unit) => fail('Expected failure'),
-          );
-        },
-      );
-
-      test(
-        'NullResponseException yakalandığında Left(NullResponseFailure) döndürmeli',
-        () async {
-          // Arrange
-          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
-          when(
-            () => mockRemoteDataSource.updateProfile(any()),
-          ).thenThrow(NullResponseException());
-
-          // Act
-          final result = await repository.updateProfile(tProfileEntity);
-
-          // Assert
-          expect(
-            result,
-            equals(
-              const Left<NullResponseFailure, Unit>(NullResponseFailure()),
-            ),
           );
         },
       );

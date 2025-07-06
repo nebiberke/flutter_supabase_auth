@@ -11,5 +11,6 @@ abstract class ProfileState with _$ProfileState {
     @Default(BlocStatus.initial) BlocStatus status,
     @Default(ProfileEntity.empty) ProfileEntity profile,
     Failure? failure,
+    @Default(false) bool isUpdated,
   }) = _ProfileState;
 }

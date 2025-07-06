@@ -70,14 +70,22 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
   ) {
     if (event.failure != null) {
       emit(state.copyWith(status: BlocStatus.error, failure: event.failure));
-    } else {
-      emit(
-        ProfileState(
-          status: BlocStatus.loaded,
-          profile: event.profile ?? ProfileEntity.empty,
-        ),
-      );
+      return;
     }
+
+    /// If the incoming profile is the same as the current profile, return.
+    final incoming = event.profile;
+    final current = state.profile;
+    if (incoming == null || incoming == current) return;
+
+    emit(
+      ProfileState(
+        status: BlocStatus.loaded,
+        profile: incoming,
+        isUpdated: true,
+      ),
+    );
+    emit(state.copyWith(isUpdated: false));
   }
 
   Future<void> _ongetProfileWithId(
@@ -138,9 +146,14 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
       (failure) =>
           emit(state.copyWith(status: BlocStatus.error, failure: failure)),
       (_) {
-        return emit(
-          ProfileState(status: BlocStatus.loaded, profile: updatedProfile),
+        emit(
+          ProfileState(
+            status: BlocStatus.loaded,
+            profile: updatedProfile,
+            isUpdated: true,
+          ),
         );
+        emit(state.copyWith(isUpdated: false));
       },
     );
   }

@@ -4,12 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_supabase_auth/app/l10n/app_l10n.g.dart';
 import 'package:flutter_supabase_auth/app/theme/cubit/theme_cubit.dart';
 import 'package:flutter_supabase_auth/app/widgets/error/custom_error_widget.dart';
+import 'package:flutter_supabase_auth/core/enums/auth_status.dart';
 import 'package:flutter_supabase_auth/core/enums/bloc_status.dart';
 import 'package:flutter_supabase_auth/core/enums/snackbar_state.dart';
 import 'package:flutter_supabase_auth/core/utils/logger/logger_utils.dart';
 import 'package:flutter_supabase_auth/core/utils/snackbar/snackbar_utils.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_event.dart';
+import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/entities/profile_entity.dart';
 import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile/profile_bloc.dart';
 import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile/profile_event.dart';
@@ -64,7 +66,7 @@ mixin ProfileViewMixin on State<ProfileView> {
   void handleProfileUpdateState(BuildContext context, ProfileState state) {
     if (state.status == BlocStatus.error) {
       CustomErrorWidget.show<void>(context, failure: state.failure!);
-    } else if (state.status == BlocStatus.loaded) {
+    } else if (state.isUpdated) {
       SnackbarUtils.showSnackbar(
         context: context,
         message: LocaleKeys.home_profile_updated.tr(),
@@ -72,6 +74,13 @@ mixin ProfileViewMixin on State<ProfileView> {
       );
       fullNameController.text = state.profile.fullName;
       initialFullName = state.profile.fullName;
+    }
+  }
+
+  /// Handles the auth update state changes event.
+  void handleAuthUpdateState(BuildContext context, AuthState state) {
+    if (state.status == AuthStatus.error) {
+      CustomErrorWidget.show<void>(context, failure: state.failure!);
     }
   }
 

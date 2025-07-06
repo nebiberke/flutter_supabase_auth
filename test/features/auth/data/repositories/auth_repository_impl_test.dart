@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:flutter_supabase_auth/app/errors/exceptions.dart';
 import 'package:flutter_supabase_auth/app/errors/failure.dart';
 import 'package:flutter_supabase_auth/core/network/network_info.dart';
 import 'package:flutter_supabase_auth/features/auth/data/datasources/remote/auth_remote_data_source.dart';
@@ -123,34 +122,6 @@ void main() {
           result.fold(
             (failure) => expect(failure, isA<AuthFailure>()),
             (user) => fail('Expected failure'),
-          );
-        },
-      );
-
-      test(
-        'NullResponseException yakalandığında Left(NullResponseFailure) döndürmeli',
-        () async {
-          // Arrange
-          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
-          when(
-            () => mockRemoteDataSource.signIn(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-            ),
-          ).thenThrow(NullResponseException());
-
-          // Act
-          final result = await repository.signIn(
-            email: tEmail,
-            password: tPassword,
-          );
-
-          // Assert
-          expect(
-            result,
-            equals(
-              const Left<NullResponseFailure, User>(NullResponseFailure()),
-            ),
           );
         },
       );
@@ -281,38 +252,6 @@ void main() {
           result.fold(
             (failure) => expect(failure, isA<AuthFailure>()),
             (user) => fail('Expected failure'),
-          );
-        },
-      );
-
-      test(
-        'NullResponseException yakalandığında Left(NullResponseFailure) döndürmeli',
-        () async {
-          // Arrange
-          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
-          when(
-            () => mockRemoteDataSource.signUp(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-              fullName: any(named: 'fullName'),
-              username: any(named: 'username'),
-            ),
-          ).thenThrow(NullResponseException());
-
-          // Act
-          final result = await repository.signUp(
-            email: tEmail,
-            password: tPassword,
-            fullName: tFullName,
-            username: tUsername,
-          );
-
-          // Assert
-          expect(
-            result,
-            equals(
-              const Left<NullResponseFailure, User>(NullResponseFailure()),
-            ),
           );
         },
       );

@@ -46,7 +46,9 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
         .from('profiles')
         .stream(primaryKey: ['id'])
         .eq('id', userId)
-        .takeWhile((_) => _supabase.auth.currentUser != null)
+        .takeWhile((_) {
+          return _supabase.auth.currentUser != null;
+        })
         .map(
           (rows) => rows.isNotEmpty ? ProfileModel.fromJson(rows.first) : null,
         )
@@ -66,7 +68,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       final currentProfile = await getProfileWithId(newProfile.id);
 
       if (currentProfile == null) {
-        throw NullResponseException();
+        throw DatabaseException();
       }
 
       final finalEmail = newProfile.email != currentProfile.email
@@ -102,8 +104,6 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       throw PostgrestException(message: e.message, code: e.code);
     } on AuthException catch (e) {
       throw AuthException(e.message, code: e.code);
-    } on NullResponseException catch (_) {
-      throw NullResponseException();
     } on Exception catch (_) {
       throw UnknownException();
     }

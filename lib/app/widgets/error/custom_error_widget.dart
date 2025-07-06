@@ -44,8 +44,6 @@ final class CustomErrorWidget {
     // 2) Otherwise, handle all other failures with your existing CustomAlertDialog
     final errorMessage = switch (failure) {
       UnknownFailure() => LocaleKeys.errors_messages_unknown_error.tr(),
-      NullResponseFailure() =>
-        LocaleKeys.errors_messages_null_response_error.tr(),
       DatabaseFailure() => LocaleKeys.errors_messages_database_error.tr(),
       NoInternetFailure() => LocaleKeys.errors_messages_no_internet_error.tr(),
       _ => LocaleKeys.errors_messages_unknown_error.tr(),
@@ -69,10 +67,7 @@ final class CustomErrorWidget {
           size: 48.sp,
         ),
       ),
-      NullResponseFailure() => (
-        LocaleKeys.errors_titles_empty_response.tr(),
-        Icon(Icons.cloud_off, color: Colors.blueGrey, size: 48.sp),
-      ),
+
       UnknownFailure() => (
         LocaleKeys.errors_titles_unknown_error.tr(),
         Icon(

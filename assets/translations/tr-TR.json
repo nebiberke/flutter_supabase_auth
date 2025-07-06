@@ -76,7 +76,6 @@
       "titles": {
         "no_internet": "Bağlantı Hatası",
         "database_error": "Veritabanı Hatası",
-        "empty_response": "Boş Yanıt",
         "unknown_error": "Bilinmeyen Hata",
         "authentication_error": "Kimlik Doğrulama Hatası"
       },
@@ -84,7 +83,6 @@
         "auth_error": "Kimlik doğrulama hatası oluştu.",
         "network_error": "Lütfen internet bağlantınızı kontrol edin.",
         "unknown_error": "Beklenmeyen bir hata oluştu.",
-        "null_response_error": "Sunucudan boş bir yanıt alındı.",
         "database_error": "Bir veritabanı hatası oluştu. Lütfen daha sonra tekrar deneyin.",
         "no_internet_error": "İnternet bağlantısı yok. Lütfen bağlantınızı kontrol edin ve tekrar deneyin.",
         "auth": {

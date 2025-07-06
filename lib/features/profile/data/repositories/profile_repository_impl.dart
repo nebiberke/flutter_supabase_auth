@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:flutter_supabase_auth/app/errors/exceptions.dart';
 import 'package:flutter_supabase_auth/app/errors/failure.dart';
 import 'package:flutter_supabase_auth/core/network/network_info.dart';
 import 'package:flutter_supabase_auth/core/utils/logger/logger_utils.dart';
@@ -56,8 +55,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
           'AuthException on updateProfile: ${e.message} (Code: ${e.code})',
         );
         return Left(AuthFailure.fromCode(e.code));
-      } on NullResponseException catch (_) {
-        return const Left(NullResponseFailure());
       } on PostgrestException catch (e) {
         LoggerUtils().logError(
           'PostgrestException on updateProfile: ${e.message} (Code: ${e.code})',

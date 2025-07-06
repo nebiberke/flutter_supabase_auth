@@ -9,6 +9,9 @@ import 'package:flutter_supabase_auth/app/widgets/circle_avatar/custom_circle_av
 import 'package:flutter_supabase_auth/app/widgets/error/custom_error_widget.dart';
 import 'package:flutter_supabase_auth/core/enums/bloc_status.dart';
 import 'package:flutter_supabase_auth/core/extensions/context_extension.dart';
+import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_state.dart';
+import 'package:flutter_supabase_auth/features/home/presentation/views/mixins/home_view_mixin.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/entities/profile_entity.dart';
 import 'package:flutter_supabase_auth/features/profile/presentation/bloc/all_profiles/all_profiles_bloc.dart';
 import 'package:flutter_supabase_auth/features/profile/presentation/bloc/all_profiles/all_profiles_event.dart';
@@ -26,32 +29,32 @@ class HomeView extends StatefulWidget {
   State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
-  @override
-  void initState() {
-    super.initState();
-    context.read<AllProfilesBloc>().add(const GetAllProfilesEvent());
-  }
-
+class _HomeViewState extends State<HomeView> with HomeViewMixin {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const Drawer(),
-      body: SafeArea(
-        child: Padding(
-          padding: PaddingConstants.allHigh,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const _WelcomeTitle(),
-              context.verticalSpacingVeryHigh2x,
-              Text(
-                LocaleKeys.home_dashboard_description.tr(),
-                style: context.textTheme.titleMedium,
-              ),
-              context.verticalSpacingVeryHigh2x,
-              const _UsersList(),
-            ],
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<ProfileBloc, ProfileState>(listener: handleProfileState),
+        BlocListener<AuthBloc, AuthState>(listener: handleAuthState),
+      ],
+      child: Scaffold(
+        body: SafeArea(
+          child: Padding(
+            padding: PaddingConstants.allHigh,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _WelcomeTitle(),
+                context.verticalSpacingVeryHigh2x,
+                Text(
+                  LocaleKeys.home_dashboard_description.tr(),
+                  style: context.textTheme.titleMedium,
+                ),
+
+                context.verticalSpacingVeryHigh2x,
+                const _UsersList(),
+              ],
+            ),
           ),
         ),
       ),

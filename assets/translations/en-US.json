@@ -76,7 +76,6 @@
       "titles": {
         "no_internet": "Connection Error",
         "database_error": "Database Error",
-        "empty_response": "Empty Response",
         "unknown_error": "Unknown Error",
         "authentication_error": "Authentication Error"
       },
@@ -84,7 +83,6 @@
         "auth_error": "Authenticated Error occured.",
         "network_error": "Please check your internet connection.",
         "unknown_error": "An unexpected error occurred.",
-        "null_response_error": "Received a null response from the server.",
         "database_error": "A database error occurred. Please try again later.",
         "no_internet_error": "No internet connection. Please check your connection and try again.",
         "auth": {

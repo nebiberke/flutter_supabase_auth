@@ -24,13 +24,6 @@ final class DatabaseFailure extends Failure {
   List<Object?> get props => [];
 }
 
-final class NullResponseFailure extends Failure {
-  const NullResponseFailure();
-
-  @override
-  List<Object?> get props => [];
-}
-
 final class NoInternetFailure extends Failure {
   const NoInternetFailure();
 
