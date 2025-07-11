@@ -6,113 +6,98 @@ import 'package:flutter_supabase_auth/features/auth/domain/usecases/uc_sign_out.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-// Mock sınıfları
 class MockAuthRepository extends Mock implements AuthRepository {}
 
 void main() {
   late UCSignOut useCase;
-  late MockAuthRepository mockRepository;
+  late MockAuthRepository mockAuthRepository;
 
   setUp(() {
-    mockRepository = MockAuthRepository();
-    useCase = UCSignOut(repository: mockRepository);
+    mockAuthRepository = MockAuthRepository();
+    useCase = UCSignOut(repository: mockAuthRepository);
   });
 
   group('UCSignOut', () {
-    test(
-      "repository'den başarılı sonuç alınca Right(Unit) döndürmeli",
-      () async {
-        // Arrange
-        when(
-          () => mockRepository.signOut(),
-        ).thenAnswer((_) async => const Right(unit));
-
-        // Act
-        final result = await useCase(NoParams());
-
-        // Assert
-        expect(result, equals(const Right<Failure, Unit>(unit)));
-        verify(() => mockRepository.signOut()).called(1);
-        verifyNoMoreInteractions(mockRepository);
-      },
-    );
-
-    test('repository hata döndürünce Left(Failure) döndürmeli', () async {
-      // Arrange
-      const tFailure = UnknownFailure();
+    test('should return Unit when sign out is successful', () async {
+      // arrange
       when(
-        () => mockRepository.signOut(),
-      ).thenAnswer((_) async => const Left(tFailure));
+        () => mockAuthRepository.signOut(),
+      ).thenAnswer((_) async => const Right(unit));
 
-      // Act
+      // act
       final result = await useCase(NoParams());
 
-      // Assert
-      expect(result, equals(const Left<UnknownFailure, Unit>(tFailure)));
-      verify(() => mockRepository.signOut()).called(1);
-      verifyNoMoreInteractions(mockRepository);
+      // assert
+      expect(result, const Right<Failure, Unit>(unit));
+      verify(() => mockAuthRepository.signOut()).called(1);
+      verifyNoMoreInteractions(mockAuthRepository);
     });
 
-    test("repository'yi parametre olmadan çağırmalı", () async {
-      // Arrange
+    test('should return AuthFailure when sign out fails', () async {
+      // arrange
+      const tFailure = AuthFailure('Failed to sign out');
       when(
-        () => mockRepository.signOut(),
-      ).thenAnswer((_) async => const Right(unit));
+        () => mockAuthRepository.signOut(),
+      ).thenAnswer((_) async => const Left(tFailure));
 
-      // Act
-      await useCase(NoParams());
+      // act
+      final result = await useCase(NoParams());
 
-      // Assert
-      verify(() => mockRepository.signOut()).called(1);
-    });
-
-    test('NoParams kullanılırken doğru şekilde çalışmalı', () async {
-      // Arrange
-      when(
-        () => mockRepository.signOut(),
-      ).thenAnswer((_) async => const Right(unit));
-
-      final params = NoParams();
-
-      // Act
-      final result = await useCase(params);
-
-      // Assert
-      expect(result, equals(const Right<Failure, Unit>(unit)));
-      verify(() => mockRepository.signOut()).called(1);
+      // assert
+      expect(result, const Left<Failure, Unit>(tFailure));
+      verify(() => mockAuthRepository.signOut()).called(1);
+      verifyNoMoreInteractions(mockAuthRepository);
     });
 
     test(
-      'auth service unavailable durumunda Left(UnknownFailure) döndürmeli',
+      'should return NoInternetFailure when there is no internet connection',
       () async {
-        // Arrange
-        const tFailure = UnknownFailure();
+        // arrange
+        const tFailure = NoInternetFailure();
         when(
-          () => mockRepository.signOut(),
+          () => mockAuthRepository.signOut(),
         ).thenAnswer((_) async => const Left(tFailure));
 
-        // Act
+        // act
         final result = await useCase(NoParams());
 
-        // Assert
-        expect(result, equals(const Left<UnknownFailure, Unit>(tFailure)));
+        // assert
+        expect(result, const Left<Failure, Unit>(tFailure));
+        verify(() => mockAuthRepository.signOut()).called(1);
+        verifyNoMoreInteractions(mockAuthRepository);
       },
     );
 
-    test('multiple sign out calls yapılabilmeli', () async {
-      // Arrange
+    test(
+      'should return UnknownFailure when an unexpected error occurs',
+      () async {
+        // arrange
+        const tFailure = UnknownFailure();
+        when(
+          () => mockAuthRepository.signOut(),
+        ).thenAnswer((_) async => const Left(tFailure));
+
+        // act
+        final result = await useCase(NoParams());
+
+        // assert
+        expect(result, const Left<Failure, Unit>(tFailure));
+        verify(() => mockAuthRepository.signOut()).called(1);
+        verifyNoMoreInteractions(mockAuthRepository);
+      },
+    );
+
+    test('should call repository signOut method exactly once', () async {
+      // arrange
       when(
-        () => mockRepository.signOut(),
+        () => mockAuthRepository.signOut(),
       ).thenAnswer((_) async => const Right(unit));
 
-      // Act
-      final result1 = await useCase(NoParams());
-      final result2 = await useCase(NoParams());
+      // act
+      await useCase(NoParams());
 
-      // Assert
-      expect(result1, equals(const Right<Failure, Unit>(unit)));
-      expect(result2, equals(const Right<Failure, Unit>(unit)));
-      verify(() => mockRepository.signOut()).called(2);
+      // assert
+      verify(() => mockAuthRepository.signOut()).called(1);
     });
   });
 }
