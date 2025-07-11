@@ -10,6 +10,9 @@ import 'package:flutter_supabase_auth/core/utils/snackbar/snackbar_utils.dart';
 import 'package:go_router/go_router.dart';
 
 final class CustomErrorWidget {
+  /// Constructor for the [CustomErrorWidget]
+  const CustomErrorWidget._();
+
   /// Shows either a [SnackbarUtils.showSnackbar] if [failure] is [AuthFailure],
   /// or a [CustomAlertDialog] for all other failure types.
   ///

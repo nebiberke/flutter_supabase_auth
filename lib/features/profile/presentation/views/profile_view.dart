@@ -11,6 +11,7 @@ import 'package:flutter_supabase_auth/app/widgets/overlay/loading_overlay.dart';
 import 'package:flutter_supabase_auth/app/widgets/text_field/custom_text_field.dart';
 import 'package:flutter_supabase_auth/core/enums/bloc_status.dart';
 import 'package:flutter_supabase_auth/core/extensions/context_extension.dart';
+import 'package:flutter_supabase_auth/core/mixins/error_handler_mixin.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile/profile_bloc.dart';
@@ -30,17 +31,19 @@ class ProfileView extends StatefulWidget {
   State<ProfileView> createState() => _ProfileViewState();
 }
 
-class _ProfileViewState extends State<ProfileView> with ProfileViewMixin {
+class _ProfileViewState extends State<ProfileView>
+    with ProfileViewMixin, ErrorHandlerMixin {
   @override
   Widget build(BuildContext context) {
     final user = context.select((ProfileBloc bloc) => bloc.state.profile);
 
     return MultiBlocListener(
       listeners: [
-        BlocListener<ProfileBloc, ProfileState>(
-          listener: handleProfileUpdateState,
+        BlocListener<ProfileBloc, ProfileState>(listener: onProfileUpdateState),
+        BlocListener<AuthBloc, AuthState>(
+          listener: onAuthError,
+          listenWhen: onAuthListenWhen,
         ),
-        BlocListener<AuthBloc, AuthState>(listener: handleAuthUpdateState),
       ],
       child: BlocBuilder<ProfileBloc, ProfileState>(
         builder: (context, state) {
@@ -48,13 +51,13 @@ class _ProfileViewState extends State<ProfileView> with ProfileViewMixin {
             children: [
               Scaffold(
                 appBar: _ProfileAppBar(
-                  onThemeChanged: handleThemeChanged,
+                  onThemeChanged: onThemeChanged,
                   isEditedNotifier: isEditedNotifier,
-                  onSave: () => saveFullName(user),
+                  onSave: () => onSaveFullName(user),
                 ),
                 body: SafeArea(
                   child: Padding(
-                    padding: PaddingConstants.allHigh,
+                    padding: PaddingConstants.allHigh.r,
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
@@ -73,7 +76,7 @@ class _ProfileViewState extends State<ProfileView> with ProfileViewMixin {
                           context.verticalSpacingHigh,
                           _LanguageAndLogoutRow(
                             onLanguageSelected: showLanguageDialog,
-                            onLogout: handleLogout,
+                            onLogout: onLogout,
                           ),
                         ],
                       ),

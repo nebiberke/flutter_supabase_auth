@@ -9,6 +9,7 @@ import 'package:flutter_supabase_auth/app/widgets/circle_avatar/custom_circle_av
 import 'package:flutter_supabase_auth/app/widgets/error/custom_error_widget.dart';
 import 'package:flutter_supabase_auth/core/enums/bloc_status.dart';
 import 'package:flutter_supabase_auth/core/extensions/context_extension.dart';
+import 'package:flutter_supabase_auth/core/mixins/error_handler_mixin.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_supabase_auth/features/home/presentation/views/mixins/home_view_mixin.dart';
@@ -29,18 +30,25 @@ class HomeView extends StatefulWidget {
   State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> with HomeViewMixin {
+class _HomeViewState extends State<HomeView>
+    with HomeViewMixin, ErrorHandlerMixin {
   @override
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
-        BlocListener<ProfileBloc, ProfileState>(listener: handleProfileState),
-        BlocListener<AuthBloc, AuthState>(listener: handleAuthState),
+        BlocListener<ProfileBloc, ProfileState>(
+          listener: onProfileError,
+          listenWhen: onProfileListenWhen,
+        ),
+        BlocListener<AuthBloc, AuthState>(
+          listener: onAuthError,
+          listenWhen: onAuthListenWhen,
+        ),
       ],
       child: Scaffold(
         body: SafeArea(
           child: Padding(
-            padding: PaddingConstants.allHigh,
+            padding: PaddingConstants.allHigh.r,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

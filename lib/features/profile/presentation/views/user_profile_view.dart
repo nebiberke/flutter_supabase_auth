@@ -52,11 +52,11 @@ class _UserProfileViewState extends State<UserProfileView> {
 
   Widget _buildProfileDetails(BuildContext context, ProfileEntity profile) {
     return SingleChildScrollView(
-      padding: PaddingConstants.allHigh,
+      padding: PaddingConstants.allHigh.r,
       child: Column(
         children: [
           CustomCircleAvatar(
-            radius: 50.r,
+            radius: 50.w,
             avatarUrl: profile.avatarUrl,
             fallbackText: profile.fullName,
           ),
@@ -90,7 +90,7 @@ class _UserProfileViewState extends State<UserProfileView> {
     return Card(
       elevation: 1,
       child: Padding(
-        padding: PaddingConstants.allMedium,
+        padding: PaddingConstants.allMedium.r,
         child: Row(
           children: [
             Icon(icon, color: context.colorScheme.primary),

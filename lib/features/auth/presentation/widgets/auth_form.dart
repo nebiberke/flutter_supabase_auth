@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_supabase_auth/app/constants/padding_constants.dart';
 import 'package:flutter_supabase_auth/app/l10n/app_l10n.g.dart';
 import 'package:flutter_supabase_auth/app/widgets/button/custom_elevated_button.dart';
@@ -30,7 +31,7 @@ class _AuthFormState extends State<AuthForm> with AuthFormMixin {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: PaddingConstants.allHigh,
+      padding: PaddingConstants.allHigh.r,
       child: Form(
         key: formKey,
         child: Column(

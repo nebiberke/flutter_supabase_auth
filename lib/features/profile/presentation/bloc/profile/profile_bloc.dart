@@ -4,7 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_supabase_auth/app/errors/failure.dart';
 import 'package:flutter_supabase_auth/core/enums/bloc_status.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/entities/profile_entity.dart';
-import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_get_profile_with_user_id.dart';
+import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_get_profile_with_id.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_update_profile.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_upload_profile_photo.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_watch_profile_state.dart';

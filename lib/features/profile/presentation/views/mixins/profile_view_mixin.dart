@@ -4,14 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_supabase_auth/app/l10n/app_l10n.g.dart';
 import 'package:flutter_supabase_auth/app/theme/cubit/theme_cubit.dart';
 import 'package:flutter_supabase_auth/app/widgets/error/custom_error_widget.dart';
-import 'package:flutter_supabase_auth/core/enums/auth_status.dart';
 import 'package:flutter_supabase_auth/core/enums/bloc_status.dart';
 import 'package:flutter_supabase_auth/core/enums/snackbar_state.dart';
 import 'package:flutter_supabase_auth/core/utils/logger/logger_utils.dart';
 import 'package:flutter_supabase_auth/core/utils/snackbar/snackbar_utils.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_event.dart';
-import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/entities/profile_entity.dart';
 import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile/profile_bloc.dart';
 import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile/profile_event.dart';
@@ -58,12 +56,12 @@ mixin ProfileViewMixin on State<ProfileView> {
   }
 
   /// Handles the sign out event.
-  void handleLogout() {
+  void onLogout() {
     context.read<AuthBloc>().add(SignOutEvent());
   }
 
   /// Handles the profile update state changes event.
-  void handleProfileUpdateState(BuildContext context, ProfileState state) {
+  void onProfileUpdateState(BuildContext context, ProfileState state) {
     if (state.status == BlocStatus.error) {
       CustomErrorWidget.show<void>(context, failure: state.failure!);
     } else if (state.isUpdated) {
@@ -77,15 +75,8 @@ mixin ProfileViewMixin on State<ProfileView> {
     }
   }
 
-  /// Handles the auth update state changes event.
-  void handleAuthUpdateState(BuildContext context, AuthState state) {
-    if (state.status == AuthStatus.error) {
-      CustomErrorWidget.show<void>(context, failure: state.failure!);
-    }
-  }
-
   /// Handles the theme changed event.
-  void handleThemeChanged({required bool isLightTheme}) {
+  void onThemeChanged({required bool isLightTheme}) {
     context.read<ThemeCubit>().setThemeMode(
       isLightTheme ? ThemeMode.light : ThemeMode.dark,
     );
@@ -129,7 +120,7 @@ mixin ProfileViewMixin on State<ProfileView> {
   }
 
   /// Handles the full name text field submitted event.
-  Future<void> saveFullName(ProfileEntity currentProfile) async {
+  Future<void> onSaveFullName(ProfileEntity currentProfile) async {
     final newFullName = fullNameController.text.trim();
     if (newFullName.isEmpty) return;
     context.read<ProfileBloc>().add(

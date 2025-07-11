@@ -71,6 +71,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> signOut() async {
     try {
       await _supabase.auth.signOut();
+    } on AuthException catch (e) {
+      throw AuthException(e.message, code: e.code);
     } on Exception catch (_) {
       throw UnknownException();
     }

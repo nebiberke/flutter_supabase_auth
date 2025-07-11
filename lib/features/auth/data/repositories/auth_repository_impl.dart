@@ -80,6 +80,11 @@ class AuthRepositoryImpl implements AuthRepository {
       try {
         await _remoteDataSource.signOut();
         return const Right(unit);
+      } on AuthException catch (e) {
+        LoggerUtils().logError(
+          'AuthException on signOut: ${e.message} (Code: ${e.code})',
+        );
+        return Left(AuthFailure.fromCode(e.code));
       } on Exception catch (e, stackTrace) {
         LoggerUtils().logFatalError('Exception on signOut', stackTrace);
         return const Left(UnknownFailure());

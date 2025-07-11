@@ -95,9 +95,9 @@ final class _UserListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final avatarRadius = 20.r;
+    final avatarRadius = 20.w;
     return Card(
-      margin: PaddingConstants.verticalLow + PaddingConstants.horizontalLow,
+      margin: PaddingConstants.verticalLow.r + PaddingConstants.horizontalLow.r,
       child: ListTile(
         onTap: onTap,
         leading: CustomCircleAvatar(

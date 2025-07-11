@@ -30,7 +30,7 @@ class _ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
         style: context.textTheme.headlineSmall,
       ),
       // 56 is the default leading width
-      leadingWidth: 56 + context.dynamicWidth(24),
+      leadingWidth: 56 + 24.w,
       leading: Switch(
         thumbColor: WidgetStatePropertyAll(context.colorScheme.tertiary),
         trackOutlineColor: WidgetStatePropertyAll(context.colorScheme.outline),
@@ -51,7 +51,7 @@ class _ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
           builder: (context, isEdited, _) {
             if (!isEdited) return const SizedBox.shrink();
             return Padding(
-              padding: PaddingConstants.horizontalLow,
+              padding: PaddingConstants.horizontalLow.r,
               child: _SaveButtonIfEdited(onSave: onSave),
             );
           },

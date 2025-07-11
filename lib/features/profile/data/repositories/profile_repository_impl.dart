@@ -131,10 +131,14 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<Either<Failure, List<ProfileEntity>>> getAllProfiles() async {
+  Future<Either<Failure, List<ProfileEntity>>> getAllOtherProfilesExcept(
+    String userId,
+  ) async {
     if (await _networkInfo.isConnected) {
       try {
-        final profiles = await _remoteDataSource.getAllProfiles();
+        final profiles = await _remoteDataSource.getAllOtherProfilesExcept(
+          userId,
+        );
         return Right(profiles.map((e) => e.toEntity()).toList());
       } on PostgrestException catch (e) {
         LoggerUtils().logError(
