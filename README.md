@@ -170,9 +170,9 @@ CREATE TABLE public.profiles (
 );
 ```
 
-## Storage Yapılandırması
+### Storage Yapılandırması
 
-### Avatars Bucket
+#### Avatars Bucket
 
 ```sql
 INSERT INTO storage.buckets (id, name, public)
