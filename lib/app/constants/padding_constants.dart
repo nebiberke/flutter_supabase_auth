@@ -1,43 +1,100 @@
-import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// A class that extends [EdgeInsets] to provide a more convenient way to set padding.
-/// This class provides responsive padding values using Flutter ScreenUtil.
-///
+/// Centralized padding values using [ScreenUtil] for responsive design.
 /// Example usage:
 /// ```dart
-/// Padding(padding: PaddingConstants.allHighLow());
+/// padding: PaddingConstants.allHigh,
 /// ```
-final class PaddingConstants extends EdgeInsets {
-  const PaddingConstants.all(super.value) : super.all();
+abstract final class PaddingConstants {
+  /// All Paddings
+  /// allVeryLow2x => 4.w
+  static const EdgeInsets allVeryLow2x = EdgeInsets.all(4);
 
-  /// Padinng All
-  PaddingConstants.allVeryLow2x() : super.all(4.w);
-  PaddingConstants.allVeryLow() : super.all(8.w);
-  PaddingConstants.allLow() : super.all(12.w);
-  PaddingConstants.allMedium() : super.all(16.w);
-  PaddingConstants.allHigh() : super.all(24.w);
-  PaddingConstants.allVeryHigh() : super.all(32.w);
-  PaddingConstants.allVeryHigh2x() : super.all(40.w);
-  PaddingConstants.allVeryHigh3x() : super.all(48.w);
+  /// allVeryLow => 8.w
+  static const EdgeInsets allVeryLow = EdgeInsets.all(8);
 
-  /// Padding Only Vertical
-  PaddingConstants.verticalVeryLow2x() : super.symmetric(vertical: 4.h);
-  PaddingConstants.verticalVeryLow() : super.symmetric(vertical: 8.h);
-  PaddingConstants.verticalLow() : super.symmetric(vertical: 12.h);
-  PaddingConstants.verticalMedium() : super.symmetric(vertical: 16.h);
-  PaddingConstants.verticalHigh() : super.symmetric(vertical: 24.h);
-  PaddingConstants.verticalVeryHigh() : super.symmetric(vertical: 32.h);
-  PaddingConstants.verticalVeryHigh2x() : super.symmetric(vertical: 40.h);
-  PaddingConstants.verticalVeryHigh3x() : super.symmetric(vertical: 48.h);
+  /// allLow => 12.w
+  static const EdgeInsets allLow = EdgeInsets.all(12);
 
-  /// Padding Only Horizontal
-  PaddingConstants.horizontalVeryLow2x() : super.symmetric(horizontal: 4.w);
-  PaddingConstants.horizontalVeryLow() : super.symmetric(horizontal: 8.w);
-  PaddingConstants.horizontalLow() : super.symmetric(horizontal: 12.w);
-  PaddingConstants.horizontalMedium() : super.symmetric(horizontal: 16.w);
-  PaddingConstants.horizontalHigh() : super.symmetric(horizontal: 24.w);
-  PaddingConstants.horizontalVeryHigh() : super.symmetric(horizontal: 32.w);
-  PaddingConstants.horizontalVeryHigh2x() : super.symmetric(horizontal: 40.w);
-  PaddingConstants.horizontalVeryHigh3x() : super.symmetric(horizontal: 48.w);
+  /// allMedium => 16.w
+  static const EdgeInsets allMedium = EdgeInsets.all(16);
+
+  /// allHigh => 24.w
+  static const EdgeInsets allHigh = EdgeInsets.all(24);
+
+  /// allVeryHigh => 32.w
+  static const EdgeInsets allVeryHigh = EdgeInsets.all(32);
+
+  /// allVeryHigh2x => 40.w
+  static const EdgeInsets allVeryHigh2x = EdgeInsets.all(40);
+
+  /// allVeryHigh3x => 48.w
+  static const EdgeInsets allVeryHigh3x = EdgeInsets.all(48);
+
+  /// Vertical Paddings
+  /// verticalVeryLow2x => 4.h
+  static const EdgeInsets verticalVeryLow2x = EdgeInsets.symmetric(vertical: 4);
+
+  /// verticalVeryLow => 8.h
+  static const EdgeInsets verticalVeryLow = EdgeInsets.symmetric(vertical: 8);
+
+  /// verticalLow => 12.h
+  static const EdgeInsets verticalLow = EdgeInsets.symmetric(vertical: 12);
+
+  /// verticalMedium => 16.h
+  static const EdgeInsets verticalMedium = EdgeInsets.symmetric(vertical: 16);
+
+  /// verticalHigh => 24.h
+  static const EdgeInsets verticalHigh = EdgeInsets.symmetric(vertical: 24);
+
+  /// verticalVeryHigh => 32.h
+  static const EdgeInsets verticalVeryHigh = EdgeInsets.symmetric(vertical: 32);
+
+  /// verticalVeryHigh2x => 40.h
+  static const EdgeInsets verticalVeryHigh2x = EdgeInsets.symmetric(
+    vertical: 40,
+  );
+
+  /// verticalVeryHigh3x => 48.h
+  static const EdgeInsets verticalVeryHigh3x = EdgeInsets.symmetric(
+    vertical: 48,
+  );
+
+  /// Horizontal Paddings
+  /// horizontalVeryLow2x => 4.w
+  static const EdgeInsets horizontalVeryLow2x = EdgeInsets.symmetric(
+    horizontal: 4,
+  );
+
+  /// horizontalVeryLow => 8.w
+  static const EdgeInsets horizontalVeryLow = EdgeInsets.symmetric(
+    horizontal: 8,
+  );
+
+  /// horizontalLow => 12.w
+  static const EdgeInsets horizontalLow = EdgeInsets.symmetric(horizontal: 12);
+
+  /// horizontalMedium => 16.w
+  static const EdgeInsets horizontalMedium = EdgeInsets.symmetric(
+    horizontal: 16,
+  );
+
+  /// horizontalHigh => 24.w
+  static const EdgeInsets horizontalHigh = EdgeInsets.symmetric(horizontal: 24);
+
+  /// horizontalVeryHigh => 32.w
+  static const EdgeInsets horizontalVeryHigh = EdgeInsets.symmetric(
+    horizontal: 32,
+  );
+
+  /// horizontalVeryHigh2x => 40.w
+  static const EdgeInsets horizontalVeryHigh2x = EdgeInsets.symmetric(
+    horizontal: 40,
+  );
+
+  /// horizontalVeryHigh3x => 48.w
+  static const EdgeInsets horizontalVeryHigh3x = EdgeInsets.symmetric(
+    horizontal: 48,
+  );
 }

@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:flutter_supabase_auth/app/errors/exceptions.dart';
 import 'package:flutter_supabase_auth/app/errors/failure.dart';
 import 'package:flutter_supabase_auth/core/network/network_info.dart';
 import 'package:flutter_supabase_auth/features/profile/data/datasources/remote/profile_remote_data_source.dart';
@@ -213,28 +212,6 @@ void main() {
       );
 
       test(
-        'NullResponseException yakalandığında Left(NullResponseFailure) döndürmeli',
-        () async {
-          // Arrange
-          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
-          when(
-            () => mockRemoteDataSource.updateProfile(any()),
-          ).thenThrow(NullResponseException());
-
-          // Act
-          final result = await repository.updateProfile(tProfileEntity);
-
-          // Assert
-          expect(
-            result,
-            equals(
-              const Left<NullResponseFailure, Unit>(NullResponseFailure()),
-            ),
-          );
-        },
-      );
-
-      test(
         'PostgrestException yakalandığında Left(DatabaseFailure) döndürmeli',
         () async {
           // Arrange
@@ -384,11 +361,11 @@ void main() {
           // Arrange
           when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
           when(
-            () => mockRemoteDataSource.getAllProfiles(),
+            () => mockRemoteDataSource.getAllOtherProfilesExcept(any()),
           ).thenAnswer((_) async => tProfileList);
 
           // Act
-          final result = await repository.getAllProfiles();
+          final result = await repository.getAllOtherProfilesExcept(tUserId);
 
           // Assert
           result.fold(
@@ -403,7 +380,9 @@ void main() {
             },
           );
           verify(() => mockNetworkInfo.isConnected).called(1);
-          verify(() => mockRemoteDataSource.getAllProfiles()).called(1);
+          verify(
+            () => mockRemoteDataSource.getAllOtherProfilesExcept(tUserId),
+          ).called(1);
         },
       );
 
@@ -416,7 +395,7 @@ void main() {
           ).thenAnswer((_) async => false);
 
           // Act
-          final result = await repository.getAllProfiles();
+          final result = await repository.getAllOtherProfilesExcept(tUserId);
 
           // Assert
           expect(
@@ -428,7 +407,9 @@ void main() {
             ),
           );
           verify(() => mockNetworkInfo.isConnected).called(1);
-          verifyNever(() => mockRemoteDataSource.getAllProfiles());
+          verifyNever(
+            () => mockRemoteDataSource.getAllOtherProfilesExcept(tUserId),
+          );
         },
       );
 
@@ -438,11 +419,11 @@ void main() {
           // Arrange
           when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
           when(
-            () => mockRemoteDataSource.getAllProfiles(),
+            () => mockRemoteDataSource.getAllOtherProfilesExcept(any()),
           ).thenThrow(const PostgrestException(message: 'Database error'));
 
           // Act
-          final result = await repository.getAllProfiles();
+          final result = await repository.getAllOtherProfilesExcept(tUserId);
 
           // Assert
           expect(result.isLeft(), isTrue);
@@ -459,11 +440,11 @@ void main() {
           // Arrange
           when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
           when(
-            () => mockRemoteDataSource.getAllProfiles(),
+            () => mockRemoteDataSource.getAllOtherProfilesExcept(any()),
           ).thenThrow(Exception('Unknown error'));
 
           // Act
-          final result = await repository.getAllProfiles();
+          final result = await repository.getAllOtherProfilesExcept(tUserId);
 
           // Assert
           expect(

@@ -30,14 +30,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       if (response.user == null) {
-        throw NullResponseException();
+        throw const AuthException('User not found', code: 'user_not_found');
       }
 
       return response.user!;
     } on AuthException catch (e) {
       throw AuthException(e.message, code: e.code);
-    } on NullResponseException catch (_) {
-      throw NullResponseException();
     } on Exception catch (_) {
       throw UnknownException();
     }
@@ -58,14 +56,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       if (response.user == null) {
-        throw NullResponseException();
+        throw const AuthException('User not found', code: 'user_not_found');
       }
 
       return response.user!;
     } on AuthException catch (e) {
       throw AuthException(e.message, code: e.code);
-    } on NullResponseException catch (_) {
-      throw NullResponseException();
     } on Exception catch (_) {
       throw UnknownException();
     }
@@ -75,6 +71,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> signOut() async {
     try {
       await _supabase.auth.signOut();
+    } on AuthException catch (e) {
+      throw AuthException(e.message, code: e.code);
     } on Exception catch (_) {
       throw UnknownException();
     }
@@ -82,6 +80,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   User? getCurrentUser() {
-    return _supabase.auth.currentUser;
+    try {
+      return _supabase.auth.currentUser;
+    } on AuthException catch (e) {
+      throw AuthException(e.message, code: e.code);
+    } on Exception catch (_) {
+      throw UnknownException();
+    }
   }
 }

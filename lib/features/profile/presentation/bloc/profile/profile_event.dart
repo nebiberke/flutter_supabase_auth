@@ -33,14 +33,14 @@ class WatchProfileStateEvent extends ProfileEvent {
   final String userId;
 
   @override
-  List<Object?> get props => [userId];
+  List<Object> get props => [userId];
 }
 
 class SignOutProfileEvent extends ProfileEvent {
   const SignOutProfileEvent();
 
   @override
-  List<Object?> get props => [];
+  List<Object> get props => [];
 }
 
 class ProfileStreamUpdated extends ProfileEvent {

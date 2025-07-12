@@ -9,12 +9,16 @@ import 'package:flutter_supabase_auth/app/widgets/circle_avatar/custom_circle_av
 import 'package:flutter_supabase_auth/app/widgets/error/custom_error_widget.dart';
 import 'package:flutter_supabase_auth/core/enums/bloc_status.dart';
 import 'package:flutter_supabase_auth/core/extensions/context_extension.dart';
-import 'package:flutter_supabase_auth/features/home/presentation/bloc/users_bloc.dart';
-import 'package:flutter_supabase_auth/features/home/presentation/bloc/users_event.dart';
-import 'package:flutter_supabase_auth/features/home/presentation/bloc/users_state.dart';
+import 'package:flutter_supabase_auth/core/mixins/error_handler_mixin.dart';
+import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_state.dart';
+import 'package:flutter_supabase_auth/features/home/presentation/views/mixins/home_view_mixin.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/entities/profile_entity.dart';
-import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile_state.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/all_profiles/all_profiles_bloc.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/all_profiles/all_profiles_event.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/all_profiles/all_profiles_state.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile/profile_bloc.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile/profile_state.dart';
 import 'package:go_router/go_router.dart';
 
 part '../widgets/users_list.dart';
@@ -26,21 +30,25 @@ class HomeView extends StatefulWidget {
   State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
+class _HomeViewState extends State<HomeView>
+    with HomeViewMixin, ErrorHandlerMixin {
   @override
   Widget build(BuildContext context) {
-    return BlocListener<ProfileBloc, ProfileState>(
-      listener: (context, state) {
-        if (state.status == BlocStatus.loaded && state.profile.id.isNotEmpty) {
-          context.read<UsersBloc>().add(
-            GetAllProfilesEvent(currentUserId: state.profile.id),
-          );
-        }
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<ProfileBloc, ProfileState>(
+          listener: onProfileError,
+          listenWhen: onProfileListenWhen,
+        ),
+        BlocListener<AuthBloc, AuthState>(
+          listener: onAuthError,
+          listenWhen: onAuthListenWhen,
+        ),
+      ],
       child: Scaffold(
         body: SafeArea(
           child: Padding(
-            padding: PaddingConstants.allHigh(),
+            padding: PaddingConstants.allHigh.r,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -50,6 +58,7 @@ class _HomeViewState extends State<HomeView> {
                   LocaleKeys.home_dashboard_description.tr(),
                   style: context.textTheme.titleMedium,
                 ),
+
                 context.verticalSpacingVeryHigh2x,
                 const _UsersList(),
               ],

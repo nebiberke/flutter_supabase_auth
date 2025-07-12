@@ -1,22 +1,29 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_supabase_auth/app/errors/failure.dart';
 import 'package:flutter_supabase_auth/core/usecases/usecase.dart';
+import 'package:flutter_supabase_auth/features/auth/domain/repositories/auth_repository.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/entities/profile_entity.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/repositories/profile_repository.dart';
-import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_get_all_profiles.dart';
+import 'package:flutter_supabase_auth/features/profile/domain/usecases/uc_get_all_other_profiles_except.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 // Mock sınıfları
 class MockProfileRepository extends Mock implements ProfileRepository {}
 
-void main() {
-  late UCGetAllProfiles useCase;
-  late MockProfileRepository mockRepository;
+class MockAuthRepository extends Mock implements AuthRepository {}
 
+void main() {
+  late UCGetAllOtherProfilesExcept useCase;
+  late MockProfileRepository mockRepository;
+  late MockAuthRepository mockAuthRepository;
   setUp(() {
     mockRepository = MockProfileRepository();
-    useCase = UCGetAllProfiles(repository: mockRepository);
+    mockAuthRepository = MockAuthRepository();
+    useCase = UCGetAllOtherProfilesExcept(
+      repository: mockRepository,
+      authRepository: mockAuthRepository,
+    );
   });
 
   group('UCGetAllProfiles', () {
@@ -42,7 +49,7 @@ void main() {
       () async {
         // Arrange
         when(
-          () => mockRepository.getAllProfiles(),
+          () => mockRepository.getAllOtherProfilesExcept(''),
         ).thenAnswer((_) async => Right(tProfileList));
 
         // Act
@@ -53,7 +60,7 @@ void main() {
           result,
           equals(Right<Failure, List<ProfileEntity>>(tProfileList)),
         );
-        verify(() => mockRepository.getAllProfiles()).called(1);
+        verify(() => mockRepository.getAllOtherProfilesExcept('')).called(1);
         verifyNoMoreInteractions(mockRepository);
       },
     );
@@ -62,7 +69,7 @@ void main() {
       // Arrange
       const tFailure = DatabaseFailure();
       when(
-        () => mockRepository.getAllProfiles(),
+        () => mockRepository.getAllOtherProfilesExcept(''),
       ).thenAnswer((_) async => const Left(tFailure));
 
       // Act
@@ -73,7 +80,7 @@ void main() {
         result,
         equals(const Left<DatabaseFailure, List<ProfileEntity>>(tFailure)),
       );
-      verify(() => mockRepository.getAllProfiles()).called(1);
+      verify(() => mockRepository.getAllOtherProfilesExcept('')).called(1);
       verifyNoMoreInteractions(mockRepository);
     });
 
@@ -81,7 +88,7 @@ void main() {
       // Arrange
       const emptyList = <ProfileEntity>[];
       when(
-        () => mockRepository.getAllProfiles(),
+        () => mockRepository.getAllOtherProfilesExcept(''),
       ).thenAnswer((_) async => const Right(emptyList));
 
       // Act
@@ -92,7 +99,7 @@ void main() {
         result,
         equals(const Right<Failure, List<ProfileEntity>>(emptyList)),
       );
-      verify(() => mockRepository.getAllProfiles()).called(1);
+      verify(() => mockRepository.getAllOtherProfilesExcept('')).called(1);
       verifyNoMoreInteractions(mockRepository);
     });
   });

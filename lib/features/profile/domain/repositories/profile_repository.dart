@@ -11,5 +11,7 @@ abstract class ProfileRepository {
     String userId,
   );
   Stream<Either<Failure, ProfileEntity?>> watchProfileState(String userId);
-  Future<Either<Failure, List<ProfileEntity>>> getAllProfiles();
+  Future<Either<Failure, List<ProfileEntity>>> getAllOtherProfilesExcept(
+    String userId,
+  );
 }

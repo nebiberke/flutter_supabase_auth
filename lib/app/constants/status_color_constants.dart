@@ -2,7 +2,7 @@ import 'dart:ui';
 
 /// Project custom status color constants
 final class StatusColorConstants {
-  StatusColorConstants._();
+  const StatusColorConstants._();
 
   /// Success color
   static const Color successColor = Color(0xFF4CAF50);

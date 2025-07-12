@@ -24,7 +24,7 @@ final class LoadingOverlay extends StatelessWidget {
         color: Colors.black.withAlpha(50),
         child: Center(
           child: Container(
-            padding: PaddingConstants.allLow(),
+            padding: PaddingConstants.allLow,
             decoration: BoxDecoration(
               color: context.colorScheme.primary,
               shape: BoxShape.circle,

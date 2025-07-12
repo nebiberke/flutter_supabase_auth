@@ -23,5 +23,5 @@ class WatchProfileStateParams extends Equatable {
   final String userId;
 
   @override
-  List<Object?> get props => [userId];
+  List<Object> get props => [userId];
 }

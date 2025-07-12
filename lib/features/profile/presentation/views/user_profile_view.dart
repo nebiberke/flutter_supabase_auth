@@ -7,10 +7,10 @@ import 'package:flutter_supabase_auth/app/l10n/app_l10n.g.dart';
 import 'package:flutter_supabase_auth/app/widgets/circle_avatar/custom_circle_avatar.dart';
 import 'package:flutter_supabase_auth/core/enums/bloc_status.dart';
 import 'package:flutter_supabase_auth/core/extensions/context_extension.dart';
-import 'package:flutter_supabase_auth/features/home/presentation/bloc/users_bloc.dart';
-import 'package:flutter_supabase_auth/features/home/presentation/bloc/users_event.dart';
-import 'package:flutter_supabase_auth/features/home/presentation/bloc/users_state.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/entities/profile_entity.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/user_profile/user_profile_bloc.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/user_profile/user_profile_event.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/user_profile/user_profile_state.dart';
 
 class UserProfileView extends StatefulWidget {
   const UserProfileView({required this.userId, super.key});
@@ -25,14 +25,16 @@ class _UserProfileViewState extends State<UserProfileView> {
   @override
   void initState() {
     super.initState();
-    context.read<UsersBloc>().add(GetProfileWithIdEvent(userId: widget.userId));
+    context.read<UserProfileBloc>().add(
+      GetProfileWithIdEvent(userId: widget.userId),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(LocaleKeys.user_profile_title.tr())),
-      body: BlocBuilder<UsersBloc, UsersState>(
+      body: BlocBuilder<UserProfileBloc, UserProfileState>(
         builder: (context, state) {
           if (state.status == BlocStatus.loading) {
             return const Center(child: CircularProgressIndicator());
@@ -50,11 +52,11 @@ class _UserProfileViewState extends State<UserProfileView> {
 
   Widget _buildProfileDetails(BuildContext context, ProfileEntity profile) {
     return SingleChildScrollView(
-      padding: PaddingConstants.allHigh(),
+      padding: PaddingConstants.allHigh.r,
       child: Column(
         children: [
           CustomCircleAvatar(
-            radius: 50.r,
+            radius: 50.w,
             avatarUrl: profile.avatarUrl,
             fallbackText: profile.fullName,
           ),
@@ -88,7 +90,7 @@ class _UserProfileViewState extends State<UserProfileView> {
     return Card(
       elevation: 1,
       child: Padding(
-        padding: PaddingConstants.allMedium(),
+        padding: PaddingConstants.allMedium.r,
         child: Row(
           children: [
             Icon(icon, color: context.colorScheme.primary),

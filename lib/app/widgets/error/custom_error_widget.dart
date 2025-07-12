@@ -10,6 +10,9 @@ import 'package:flutter_supabase_auth/core/utils/snackbar/snackbar_utils.dart';
 import 'package:go_router/go_router.dart';
 
 final class CustomErrorWidget {
+  /// Constructor for the [CustomErrorWidget]
+  const CustomErrorWidget._();
+
   /// Shows either a [SnackbarUtils.showSnackbar] if [failure] is [AuthFailure],
   /// or a [CustomAlertDialog] for all other failure types.
   ///
@@ -33,8 +36,7 @@ final class CustomErrorWidget {
     if (failure is AuthFailure) {
       SnackbarUtils.showSnackbar(
         context: context,
-        message: failure.message
-            .tr(), // or simply failure.message if already localized
+        message: failure.message.tr(namedArgs: failure.namedArgs),
         state: SnackbarState.error, // Adjust to your enum or style
       );
       // Return a resolved Future since we're not showing a dialog
@@ -44,8 +46,6 @@ final class CustomErrorWidget {
     // 2) Otherwise, handle all other failures with your existing CustomAlertDialog
     final errorMessage = switch (failure) {
       UnknownFailure() => LocaleKeys.errors_messages_unknown_error.tr(),
-      NullResponseFailure() =>
-        LocaleKeys.errors_messages_null_response_error.tr(),
       DatabaseFailure() => LocaleKeys.errors_messages_database_error.tr(),
       NoInternetFailure() => LocaleKeys.errors_messages_no_internet_error.tr(),
       _ => LocaleKeys.errors_messages_unknown_error.tr(),
@@ -69,10 +69,7 @@ final class CustomErrorWidget {
           size: 48.sp,
         ),
       ),
-      NullResponseFailure() => (
-        LocaleKeys.errors_titles_empty_response.tr(),
-        Icon(Icons.cloud_off, color: Colors.blueGrey, size: 48.sp),
-      ),
+
       UnknownFailure() => (
         LocaleKeys.errors_titles_unknown_error.tr(),
         Icon(

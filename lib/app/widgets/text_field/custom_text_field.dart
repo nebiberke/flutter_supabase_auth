@@ -42,7 +42,7 @@ final class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: PaddingConstants.verticalLow(),
+      padding: PaddingConstants.verticalLow,
       child: TextFormField(
         controller: controller,
         obscureText: obscureText,

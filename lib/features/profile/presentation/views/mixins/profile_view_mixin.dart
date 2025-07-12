@@ -11,9 +11,9 @@ import 'package:flutter_supabase_auth/core/utils/snackbar/snackbar_utils.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_event.dart';
 import 'package:flutter_supabase_auth/features/profile/domain/entities/profile_entity.dart';
-import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile_event.dart';
-import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile_state.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile/profile_bloc.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile/profile_event.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/bloc/profile/profile_state.dart';
 import 'package:flutter_supabase_auth/features/profile/presentation/views/profile_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -56,15 +56,15 @@ mixin ProfileViewMixin on State<ProfileView> {
   }
 
   /// Handles the sign out event.
-  void handleLogout() {
+  void onLogout() {
     context.read<AuthBloc>().add(SignOutEvent());
   }
 
   /// Handles the profile update state changes event.
-  void handleProfileUpdateState(BuildContext context, ProfileState state) {
+  void onProfileUpdateState(BuildContext context, ProfileState state) {
     if (state.status == BlocStatus.error) {
       CustomErrorWidget.show<void>(context, failure: state.failure!);
-    } else if (state.status == BlocStatus.loaded) {
+    } else if (state.isUpdated) {
       SnackbarUtils.showSnackbar(
         context: context,
         message: LocaleKeys.home_profile_updated.tr(),
@@ -76,7 +76,7 @@ mixin ProfileViewMixin on State<ProfileView> {
   }
 
   /// Handles the theme changed event.
-  void handleThemeChanged({required bool isLightTheme}) {
+  void onThemeChanged({required bool isLightTheme}) {
     context.read<ThemeCubit>().setThemeMode(
       isLightTheme ? ThemeMode.light : ThemeMode.dark,
     );
@@ -120,7 +120,7 @@ mixin ProfileViewMixin on State<ProfileView> {
   }
 
   /// Handles the full name text field submitted event.
-  Future<void> saveFullName(ProfileEntity currentProfile) async {
+  Future<void> onSaveFullName(ProfileEntity currentProfile) async {
     final newFullName = fullNameController.text.trim();
     if (newFullName.isEmpty) return;
     context.read<ProfileBloc>().add(

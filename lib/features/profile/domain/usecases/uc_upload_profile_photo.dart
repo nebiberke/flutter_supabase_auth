@@ -27,5 +27,5 @@ class UploadProfilePhotoParams extends Equatable {
   final String userId;
 
   @override
-  List<Object?> get props => [imageFile, userId];
+  List<Object> get props => [imageFile, userId];
 }

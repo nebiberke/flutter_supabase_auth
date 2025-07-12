@@ -5,46 +5,42 @@ extension ScreenUtilExtension on BuildContext {
   ScreenUtil get screenUtil => ScreenUtil();
 
   /// Returns true if the device's screen is small
-  bool get isMinecraft => !(ScreenUtil().pixelRatio! >= 2.90);
+  bool get isMinecraft => !(screenUtil.pixelRatio! >= 2.90);
 
   /// Returns the height of the device
-  double get height => ScreenUtil().screenHeight;
+  double get height => screenUtil.screenHeight;
 
   /// Returns the width of the device
-  double get width => ScreenUtil().screenWidth;
+  double get width => screenUtil.screenWidth;
 
   /// Returns the status bar height
-  double get statusBarHeight => ScreenUtil().statusBarHeight;
+  double get statusBarHeight => screenUtil.statusBarHeight;
 
   /// Returns the bottom bar height
-  double get bottomBarHeight => ScreenUtil().bottomBarHeight;
+  double get bottomBarHeight => screenUtil.bottomBarHeight;
 
   /// Vertical Spacing
-  SizedBox get verticalSpacingVeryLow2x => ScreenUtil().setVerticalSpacing(4);
-  SizedBox get verticalSpacingVeryLow => ScreenUtil().setVerticalSpacing(8);
-  SizedBox get verticalSpacingLow => ScreenUtil().setVerticalSpacing(12);
-  SizedBox get verticalSpacingMedium => ScreenUtil().setVerticalSpacing(16);
-  SizedBox get verticalSpacingHigh => ScreenUtil().setVerticalSpacing(24);
-  SizedBox get verticalSpacingVeryHigh => ScreenUtil().setVerticalSpacing(32);
-  SizedBox get verticalSpacingVeryHigh2x => ScreenUtil().setVerticalSpacing(40);
-  SizedBox get verticalSpacingVeryHigh3x => ScreenUtil().setVerticalSpacing(48);
+  SizedBox get verticalSpacingVeryLow2x => 4.verticalSpace;
+  SizedBox get verticalSpacingVeryLow => 8.verticalSpace;
+  SizedBox get verticalSpacingLow => 12.verticalSpace;
+  SizedBox get verticalSpacingMedium => 16.verticalSpace;
+  SizedBox get verticalSpacingHigh => 24.verticalSpace;
+  SizedBox get verticalSpacingVeryHigh => 32.verticalSpace;
+  SizedBox get verticalSpacingVeryHigh2x => 40.verticalSpace;
+  SizedBox get verticalSpacingVeryHigh3x => 48.verticalSpace;
 
   /// Horizontal Spacing
-  SizedBox get horizontalSpacingVeryLow2x =>
-      ScreenUtil().setHorizontalSpacing(4);
-  SizedBox get horizontalSpacingVeryLow => ScreenUtil().setHorizontalSpacing(8);
-  SizedBox get horizontalSpacingLow => ScreenUtil().setHorizontalSpacing(12);
-  SizedBox get horizontalSpacingMedium => ScreenUtil().setHorizontalSpacing(16);
-  SizedBox get horizontalSpacingHigh => ScreenUtil().setHorizontalSpacing(24);
-  SizedBox get horizontalSpacingVeryHigh =>
-      ScreenUtil().setHorizontalSpacing(32);
-  SizedBox get horizontalSpacingVeryHigh2x =>
-      ScreenUtil().setHorizontalSpacing(40);
-  SizedBox get horizontalSpacingVeryHigh3x =>
-      ScreenUtil().setHorizontalSpacing(48);
+  SizedBox get horizontalSpacingVeryLow2x => 4.horizontalSpace;
+  SizedBox get horizontalSpacingVeryLow => 8.horizontalSpace;
+  SizedBox get horizontalSpacingLow => 12.horizontalSpace;
+  SizedBox get horizontalSpacingMedium => 16.horizontalSpace;
+  SizedBox get horizontalSpacingHigh => 24.horizontalSpace;
+  SizedBox get horizontalSpacingVeryHigh => 32.horizontalSpace;
+  SizedBox get horizontalSpacingVeryHigh2x => 40.horizontalSpace;
+  SizedBox get horizontalSpacingVeryHigh3x => 48.horizontalSpace;
 
-  double dynamicHeight(double val) => ScreenUtil().setHeight(val);
-  double dynamicWidth(double val) => ScreenUtil().setWidth(val);
+  double dynamicHeight(double val) => screenUtil.setHeight(val);
+  double dynamicWidth(double val) => screenUtil.setWidth(val);
 }
 
 extension ThemeExtension on BuildContext {

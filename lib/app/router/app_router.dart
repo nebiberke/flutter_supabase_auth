@@ -4,8 +4,8 @@ import 'package:flutter_supabase_auth/core/enums/auth_status.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_supabase_auth/features/auth/presentation/views/auth_view.dart';
 import 'package:flutter_supabase_auth/features/home/presentation/views/home_view.dart';
-import 'package:flutter_supabase_auth/features/home/presentation/views/user_profile_view.dart';
 import 'package:flutter_supabase_auth/features/profile/presentation/views/profile_view.dart';
+import 'package:flutter_supabase_auth/features/profile/presentation/views/user_profile_view.dart';
 import 'package:flutter_supabase_auth/locator.dart';
 import 'package:go_router/go_router.dart';
 

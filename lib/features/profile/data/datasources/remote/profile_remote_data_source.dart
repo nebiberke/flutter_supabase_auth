@@ -11,7 +11,7 @@ abstract class ProfileRemoteDataSource {
   Stream<ProfileModel?> watchProfileState(String userId);
   Future<void> updateProfile(ProfileModel newProfile);
   Future<String> uploadProfilePhoto(XFile imageFile, String userId);
-  Future<List<ProfileModel>> getAllProfiles();
+  Future<List<ProfileModel>> getAllOtherProfilesExcept(String userId);
 }
 
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
@@ -46,12 +46,13 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
         .from('profiles')
         .stream(primaryKey: ['id'])
         .eq('id', userId)
-        .takeWhile((_) => _supabase.auth.currentUser != null)
+        .takeWhile((_) {
+          return _supabase.auth.currentUser != null;
+        })
         .map(
           (rows) => rows.isNotEmpty ? ProfileModel.fromJson(rows.first) : null,
         )
         .handleError((Object error, StackTrace stackTrace) {
-          LoggerUtils().logError('Stream error: $error');
           if (error is PostgrestException) {
             throw PostgrestException(message: error.message, code: error.code);
           } else if (error is RealtimeSubscribeException) {
@@ -67,34 +68,41 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       final currentProfile = await getProfileWithId(newProfile.id);
 
       if (currentProfile == null) {
-        throw NullResponseException();
+        throw const AuthException('User not found', code: 'user_not_found');
       }
 
+      // If the email is not the same, update the email
       final finalEmail = newProfile.email != currentProfile.email
           ? newProfile.email
           : null;
 
       final updatedProfileData = <String, dynamic>{
+        // If the full name is not the same, update the full name
         'full_name': newProfile.fullName != currentProfile.fullName
             ? newProfile.fullName
             : null,
+        // If the username is not the same, update the username
         'username': newProfile.username != currentProfile.username
             ? newProfile.username
             : null,
+        // If the avatar url is not the same, update the avatar url
         'avatar_url': newProfile.avatarUrl != currentProfile.avatarUrl
             ? newProfile.avatarUrl
             : null,
       }..removeWhere((k, v) => v == null);
 
+      // If there are no updates, return
       if (finalEmail == null && updatedProfileData.isEmpty) {
         LoggerUtils().logInfo('No profile updates detected.');
         return;
       }
 
+      // If the email is not the same, update the email
       if (finalEmail != null) {
         await _supabase.auth.updateUser(UserAttributes(email: finalEmail));
       }
 
+      // Update the profile
       await _supabase
           .from('profiles')
           .update(updatedProfileData)
@@ -103,8 +111,6 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       throw PostgrestException(message: e.message, code: e.code);
     } on AuthException catch (e) {
       throw AuthException(e.message, code: e.code);
-    } on NullResponseException catch (_) {
-      throw NullResponseException();
     } on Exception catch (_) {
       throw UnknownException();
     }
@@ -120,16 +126,20 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       final fileName = '${DateTime.now().toIso8601String()}.$fileExt';
       final filePath = '$userId/$fileName';
 
+      // Check if the file already exists
       final existingFiles = await _supabase.storage
           .from('avatars')
           .list(path: userId);
 
+      // If the file already exists, remove it
       if (existingFiles.isNotEmpty) {
         log('existingFiles: ${existingFiles.map((e) => e.name)}');
         await _supabase.storage
             .from('avatars')
             .remove(existingFiles.map((e) => '$userId/${e.name}').toList());
       }
+
+      // Upload the file
       await _supabase.storage
           .from('avatars')
           .uploadBinary(
@@ -138,6 +148,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
             fileOptions: FileOptions(contentType: imageFile.mimeType),
           );
 
+      // Get the public url of the file
       final photoUrl = _supabase.storage.from('avatars').getPublicUrl(filePath);
 
       LoggerUtils().logInfo('Photo URL: $photoUrl');
@@ -150,9 +161,14 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   }
 
   @override
-  Future<List<ProfileModel>> getAllProfiles() async {
+  Future<List<ProfileModel>> getAllOtherProfilesExcept(String userId) async {
     try {
-      final response = await _supabase.from('profiles').select();
+      // Get all profiles except the current user
+      final response = await _supabase
+          .from('profiles')
+          .select()
+          .neq('id', userId);
+
       return response.map(ProfileModel.fromJson).toList();
     } on PostgrestException catch (e) {
       throw PostgrestException(message: e.message, code: e.code);

@@ -7,121 +7,113 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// Mock sınıfları
 class MockAuthRepository extends Mock implements AuthRepository {}
 
 class MockUser extends Mock implements User {}
 
 void main() {
   late UCGetCurrentUser useCase;
-  late MockAuthRepository mockRepository;
+  late MockAuthRepository mockAuthRepository;
   late MockUser mockUser;
 
   setUp(() {
-    mockRepository = MockAuthRepository();
+    mockAuthRepository = MockAuthRepository();
     mockUser = MockUser();
-    useCase = UCGetCurrentUser(repository: mockRepository);
+    useCase = UCGetCurrentUser(repository: mockAuthRepository);
   });
 
   group('UCGetCurrentUser', () {
-    test("repository'den user varsa Right(User) döndürmeli", () async {
-      // Arrange
-      when(() => mockRepository.getCurrentUser()).thenReturn(mockUser);
-
-      // Act
-      final result = await useCase(NoParams());
-
-      // Assert
-      expect(result, equals(Right<Failure, User?>(mockUser)));
-      verify(() => mockRepository.getCurrentUser()).called(1);
-      verifyNoMoreInteractions(mockRepository);
-    });
-
-    test("repository'den user yoksa Right(null) döndürmeli", () async {
-      // Arrange
-      when(() => mockRepository.getCurrentUser()).thenReturn(null);
-
-      // Act
-      final result = await useCase(NoParams());
-
-      // Assert
-      expect(result, equals(const Right<Failure, User?>(null)));
-      verify(() => mockRepository.getCurrentUser()).called(1);
-      verifyNoMoreInteractions(mockRepository);
-    });
-
-    test("repository'yi parametre olmadan çağırmalı", () async {
-      // Arrange
-      when(() => mockRepository.getCurrentUser()).thenReturn(mockUser);
-
-      // Act
-      await useCase(NoParams());
-
-      // Assert
-      verify(() => mockRepository.getCurrentUser()).called(1);
-    });
-
-    test('NoParams kullanılırken doğru şekilde çalışmalı', () async {
-      // Arrange
-      when(() => mockRepository.getCurrentUser()).thenReturn(mockUser);
-
-      final params = NoParams();
-
-      // Act
-      final result = await useCase(params);
-
-      // Assert
-      expect(result, equals(Right<Failure, User?>(mockUser)));
-      verify(() => mockRepository.getCurrentUser()).called(1);
-    });
-
-    test('multiple calls yapılabilmeli', () async {
-      // Arrange
-      when(() => mockRepository.getCurrentUser()).thenReturn(mockUser);
-
-      // Act
-      final result1 = await useCase(NoParams());
-      final result2 = await useCase(NoParams());
-
-      // Assert
-      expect(result1, equals(Right<Failure, User?>(mockUser)));
-      expect(result2, equals(Right<Failure, User?>(mockUser)));
-      verify(() => mockRepository.getCurrentUser()).called(2);
-    });
-
     test(
-      'authenticated user ile null user arasında geçiş yapabilmeli',
+      'should get current user from the repository when user exists',
       () async {
-        // Arrange & Act & Assert - İlk çağrıda user var
-        when(() => mockRepository.getCurrentUser()).thenReturn(mockUser);
-        final result1 = await useCase(NoParams());
-        expect(result1, equals(Right<Failure, User?>(mockUser)));
+        // arrange
+        when(
+          () => mockAuthRepository.getCurrentUser(),
+        ).thenAnswer((_) async => Right(mockUser));
 
-        // Arrange & Act & Assert - İkinci çağrıda user yok
-        when(() => mockRepository.getCurrentUser()).thenReturn(null);
-        final result2 = await useCase(NoParams());
-        expect(result2, equals(const Right<Failure, User?>(null)));
+        // act
+        final result = await useCase(NoParams());
 
-        verify(() => mockRepository.getCurrentUser()).called(2);
+        // assert
+        expect(result, Right<Failure, User>(mockUser));
+        verify(() => mockAuthRepository.getCurrentUser()).called(1);
+        verifyNoMoreInteractions(mockAuthRepository);
       },
     );
 
-    test('user state değişikliklerini doğru şekilde handle etmeli', () async {
-      // Arrange - İlk durum: kullanıcı yok
-      when(() => mockRepository.getCurrentUser()).thenReturn(null);
+    test(
+      'should return null from the repository when no user is logged in',
+      () async {
+        // arrange
+        when(
+          () => mockAuthRepository.getCurrentUser(),
+        ).thenAnswer((_) async => const Right(null));
 
-      // Act & Assert - Kullanıcı yok
-      final result1 = await useCase(NoParams());
-      expect(result1, equals(const Right<Failure, User?>(null)));
+        // act
+        final result = await useCase(NoParams());
 
-      // Arrange - İkinci durum: kullanıcı giriş yaptı
-      when(() => mockRepository.getCurrentUser()).thenReturn(mockUser);
+        // assert
+        expect(result, const Right<Failure, User?>(null));
+        verify(() => mockAuthRepository.getCurrentUser()).called(1);
+        verifyNoMoreInteractions(mockAuthRepository);
+      },
+    );
 
-      // Act & Assert - Kullanıcı var
-      final result2 = await useCase(NoParams());
-      expect(result2, equals(Right<Failure, User?>(mockUser)));
+    test(
+      'should return AuthFailure when repository returns auth failure',
+      () async {
+        // arrange
+        const tFailure = AuthFailure('Failed to get current user');
+        when(
+          () => mockAuthRepository.getCurrentUser(),
+        ).thenAnswer((_) async => const Left(tFailure));
 
-      verify(() => mockRepository.getCurrentUser()).called(2);
-    });
+        // act
+        final result = await useCase(NoParams());
+
+        // assert
+        expect(result, const Left<Failure, User?>(tFailure));
+        verify(() => mockAuthRepository.getCurrentUser()).called(1);
+        verifyNoMoreInteractions(mockAuthRepository);
+      },
+    );
+
+    test(
+      'should return NoInternetFailure when repository returns no internet failure',
+      () async {
+        // arrange
+        const tFailure = NoInternetFailure();
+        when(
+          () => mockAuthRepository.getCurrentUser(),
+        ).thenAnswer((_) async => const Left(tFailure));
+
+        // act
+        final result = await useCase(NoParams());
+
+        // assert
+        expect(result, const Left<Failure, User?>(tFailure));
+        verify(() => mockAuthRepository.getCurrentUser()).called(1);
+        verifyNoMoreInteractions(mockAuthRepository);
+      },
+    );
+
+    test(
+      'should return UnknownFailure when repository returns unknown failure',
+      () async {
+        // arrange
+        const tFailure = UnknownFailure();
+        when(
+          () => mockAuthRepository.getCurrentUser(),
+        ).thenAnswer((_) async => const Left(tFailure));
+
+        // act
+        final result = await useCase(NoParams());
+
+        // assert
+        expect(result, const Left<Failure, User?>(tFailure));
+        verify(() => mockAuthRepository.getCurrentUser()).called(1);
+        verifyNoMoreInteractions(mockAuthRepository);
+      },
+    );
   });
 }

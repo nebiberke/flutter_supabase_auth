@@ -11,8 +11,7 @@ class UCGetCurrentUser implements UseCase<User?, NoParams> {
   final AuthRepository _repository;
 
   @override
-  Future<Either<Failure, User?>> call(NoParams params) async {
-    final user = _repository.getCurrentUser();
-    return Right(user);
+  Future<Either<Failure, User?>> call(NoParams params) {
+    return _repository.getCurrentUser();
   }
 }

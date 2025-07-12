@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:flutter_supabase_auth/app/errors/exceptions.dart';
 import 'package:flutter_supabase_auth/app/errors/failure.dart';
 import 'package:flutter_supabase_auth/core/network/network_info.dart';
 import 'package:flutter_supabase_auth/core/utils/logger/logger_utils.dart';
@@ -48,7 +47,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Future<Either<Failure, Unit>> updateProfile(ProfileEntity newProfile) async {
     if (await _networkInfo.isConnected) {
       try {
-        final updatedProfile = ProfileModel.fromEntity(newProfile);
+        final updatedProfile = newProfile.toModel();
         await _remoteDataSource.updateProfile(updatedProfile);
         return const Right(unit);
       } on AuthException catch (e) {
@@ -56,8 +55,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
           'AuthException on updateProfile: ${e.message} (Code: ${e.code})',
         );
         return Left(AuthFailure.fromCode(e.code));
-      } on NullResponseException catch (_) {
-        return const Left(NullResponseFailure());
       } on PostgrestException catch (e) {
         LoggerUtils().logError(
           'PostgrestException on updateProfile: ${e.message} (Code: ${e.code})',
@@ -79,6 +76,14 @@ class ProfileRepositoryImpl implements ProfileRepository {
         .map((model) => Right<Failure, ProfileEntity?>(model?.toEntity()))
         .handleError((Object error, StackTrace stackTrace) {
           if (error is PostgrestException) {
+            LoggerUtils().logError(
+              'PostgrestException on watchProfileState: ${error.message} (Code: ${error.code})',
+            );
+            return const Left<Failure, ProfileEntity?>(DatabaseFailure());
+          } else if (error is RealtimeSubscribeException) {
+            LoggerUtils().logError(
+              'RealtimeSubscribeException on watchProfileState: ${error.status}',
+            );
             return const Left<Failure, ProfileEntity?>(DatabaseFailure());
           }
           LoggerUtils().logFatalError('Unhandled stream error', stackTrace);
@@ -126,10 +131,14 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<Either<Failure, List<ProfileEntity>>> getAllProfiles() async {
+  Future<Either<Failure, List<ProfileEntity>>> getAllOtherProfilesExcept(
+    String userId,
+  ) async {
     if (await _networkInfo.isConnected) {
       try {
-        final profiles = await _remoteDataSource.getAllProfiles();
+        final profiles = await _remoteDataSource.getAllOtherProfilesExcept(
+          userId,
+        );
         return Right(profiles.map((e) => e.toEntity()).toList());
       } on PostgrestException catch (e) {
         LoggerUtils().logError(

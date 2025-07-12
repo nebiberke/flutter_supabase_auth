@@ -1,10 +1,7 @@
 part of '../views/profile_view.dart';
 
 class _ProfileImage extends StatelessWidget {
-  const _ProfileImage({
-    required this.avatarUrl,
-    required this.onTap,
-  });
+  const _ProfileImage({required this.avatarUrl, required this.onTap});
   final String? avatarUrl;
   final VoidCallback onTap;
 
@@ -14,15 +11,12 @@ class _ProfileImage extends StatelessWidget {
       onTap: onTap,
       child: Stack(
         children: [
-          CustomCircleAvatar(
-            radius: 60.r,
-            avatarUrl: avatarUrl,
-          ),
+          CustomCircleAvatar(radius: 60.w, avatarUrl: avatarUrl),
           Positioned(
             right: 0,
             bottom: 0,
             child: Container(
-              padding: PaddingConstants.allLow() / 3,
+              padding: PaddingConstants.allLow.r / 3,
               decoration: BoxDecoration(
                 color: context.colorScheme.secondary,
                 shape: BoxShape.circle,
