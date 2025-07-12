@@ -170,54 +170,6 @@ CREATE TABLE public.profiles (
 );
 ```
 
-### Otomatik Profil Oluşturma
-
-```sql
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-    INSERT INTO public.profiles (
-        id,
-        full_name,
-        avatar_url,
-        email,
-        username
-    )
-    VALUES (
-        NEW.id,
-        NEW.raw_user_meta_data ->> 'full_name',
-        NEW.raw_user_meta_data ->> 'avatar_url',
-        NEW.email,
-        NEW.raw_user_meta_data ->> 'username'
-    );
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-
-CREATE OR REPLACE TRIGGER on_auth_user_created
-    AFTER INSERT ON auth.users
-    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
-```
-
-### Updated At Trigger
-
-```sql
-CREATE OR REPLACE FUNCTION public.sync_auth_user_update_to_profiles()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF (TG_OP = 'UPDATE') THEN
-        UPDATE public.profiles
-        SET
-            email      = NEW.email,
-            updated_at = NOW()
-        WHERE id = NEW.id;
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-```
-
 ## Storage Yapılandırması
 
 ### Avatars Bucket
