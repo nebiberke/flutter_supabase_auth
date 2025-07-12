@@ -36,8 +36,7 @@ final class CustomErrorWidget {
     if (failure is AuthFailure) {
       SnackbarUtils.showSnackbar(
         context: context,
-        message: failure.message
-            .tr(), // or simply failure.message if already localized
+        message: failure.message.tr(namedArgs: failure.namedArgs),
         state: SnackbarState.error, // Adjust to your enum or style
       );
       // Return a resolved Future since we're not showing a dialog

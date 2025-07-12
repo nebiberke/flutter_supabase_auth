@@ -42,6 +42,7 @@ dependencies:
   envied: ^1.1.1
   image_picker: ^1.1.2
   flutter_native_splash: ^2.4.6
+  rxdart: ^0.28.0
 
   # Functional Programming
   dartz: ^0.10.1
@@ -51,7 +52,6 @@ dependencies:
 
   # Networking
   internet_connection_checker_plus: ^2.7.2
-  rxdart: ^0.28.0
 
 dev_dependencies:
   flutter_test:

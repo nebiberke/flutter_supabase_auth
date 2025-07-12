@@ -1,4 +1,3 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_supabase_auth/app/l10n/app_l10n.g.dart';
 
@@ -33,18 +32,18 @@ final class NoInternetFailure extends Failure {
 
 /// Represents an authentication failure.
 ///
-/// The error message is localized and should be displayed using `.tr()`.
 final class AuthFailure extends Failure {
   /// Creates an [AuthFailure] with an optional message.
-  const AuthFailure([String? message])
+  const AuthFailure(String? message, {this.namedArgs})
     : message = message ?? LocaleKeys.errors_messages_auth_error;
 
   /// Maps an error [code] to a user-friendly message.
   ///
-  /// The returned message should be localized using `.tr()`.
+  /// - You can only use the message variable for over_sms_send_rate_limit.
   factory AuthFailure.fromCode(String? code, {String? message}) {
     /// OTP rate limit error message format: "You have reached the maximum number of attempts. Please try again in 3 seconds."
     /// This regex extracts the number of seconds from the message.
+    /// If the message is not found, the default value is 3.
     final seconds =
         RegExp(r'(\d+) seconds?\.').firstMatch(message ?? '')?.group(1) ?? '3';
     switch (code) {
@@ -96,9 +95,8 @@ final class AuthFailure extends Failure {
         );
       case 'over_sms_send_rate_limit':
         return AuthFailure(
-          LocaleKeys.errors_messages_auth_over_sms_rate_limit.tr(
-            namedArgs: {'seconds': seconds},
-          ),
+          LocaleKeys.errors_messages_auth_over_sms_rate_limit,
+          namedArgs: {'seconds': seconds},
         );
       case 'google_sign_in_error':
         return const AuthFailure(
@@ -112,6 +110,8 @@ final class AuthFailure extends Failure {
   /// The user-friendly error message.
   final String message;
 
+  final Map<String, String>? namedArgs;
+
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, namedArgs];
 }
