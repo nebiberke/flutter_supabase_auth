@@ -8,9 +8,7 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-final class AppInitializer {
-  const AppInitializer._();
-
+abstract final class AppInitializer {
   /// The primary entry point to initialize all essential app services and configurations.
   /// It follows a step-by-step structure for clarity and maintainability.
   static Future<void> init() async {
